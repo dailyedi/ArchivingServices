@@ -240,5 +240,16 @@ namespace ArchivingServices
                 return false;
             }
         }
+
+        //TODO: archive directory (same location, same name, only parameter is directory path)
+        //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
+        //TODO: add files to existing archive
+        //TODO: get files metadata from archive
+        //TODO: extract particular file from archive
+        //TODO: get a file stream from archive
+        //TODO: get all files metadata and streams from archive
+        //TODO: extract archive as flat directory
+        //TODO: extract archive to directory
+        //TODO: overloads to specify the compressing algorithm with more support than the LZ77/78, DEFLATE like rar and others
     }
 }
