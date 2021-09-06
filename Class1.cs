@@ -92,7 +92,8 @@ namespace ArchivingServices
         }
 
         /// <summary>
-        /// a simple function that wraps the functionality for zipping file list into an archive
+        /// a simple function that wraps the functionality for zipping file
+        /// using the file path on disk and the file path in archive to be created
         /// </summary>
         /// <param name="filePathOnDisk">the file path on disk</param>
         /// <param name="filePathInArchive">the file path in the archive</param>
@@ -114,8 +115,8 @@ namespace ArchivingServices
         }
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// archive files in the list of ZipStreamConfig which you
+        /// can specify the file stream and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfigurationList">the list of objects ZipFileConfig to archive</param>
@@ -126,7 +127,7 @@ namespace ArchivingServices
                 z => z.FileStream), archivePath);
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
+        /// archive files in the list of ZipStreamConfig which you
         /// can specify the file path on disk and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
@@ -140,8 +141,8 @@ namespace ArchivingServices
             }, archivePath);
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// archive file from filePathInArchive which you can
+        /// can specify the file stream and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="filePathInArchive">the file path in the archive to be created</param>
@@ -155,8 +156,8 @@ namespace ArchivingServices
             }, archivePath);
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// archive files in the list of ZipStreamConfig which you
+        /// can specify the file stream and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfigurationList">the list of objects called ZipFileConfig to archive</param>
@@ -167,8 +168,8 @@ namespace ArchivingServices
                 z => z.FileStream), archivePath);
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// archive file Async using the stream object ZipStreamConfig which you
+        /// can specify the file stream and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfiguration">the list of objects called ZipFileConfig to archive</param>
@@ -181,8 +182,7 @@ namespace ArchivingServices
             }, archivePath);
 
         /// <summary>
-        /// archive files in the list of objects called ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// archive file Async using the stream provided with the file path in archive
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="filePathInArchive">the file path in the archive to be created</param>
@@ -219,7 +219,7 @@ namespace ArchivingServices
         }
 
         /// <summary>
-        /// a simple function that wraps the functionality for zipping file list into an archive
+        /// a simple function that wraps the functionality for zipping files list async into an archive
         /// </summary>
         /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
         /// <param name="archivePath">the path to save the archived file to</param>
