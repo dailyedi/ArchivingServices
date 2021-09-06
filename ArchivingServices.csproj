@@ -1,8 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<Authors>DailyEDI</Authors>
+		<Company>DailyEDI</Company>
+		<Description>a simple library used to encapsulate and wrap System.IO.Compression.ZipFile functions in a more real world common scenario </Description>
+		<PackageProjectUrl>https://github.com/dailyedi/ArchivingServices</PackageProjectUrl>
+		<PackageIcon>128x114.jpg</PackageIcon>
+		<RepositoryUrl>https://github.com/dailyedi/ArchivingServices</RepositoryUrl>
+		<PackageTags>ArchivingServices;ArchivingHandler;SimpleArchiving</PackageTags>
+		<NeutralLanguage>en</NeutralLanguage>
+		<Copyright>daily edi ltd.</Copyright>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<SignAssembly>False</SignAssembly>
+		<ver>$([System.DateTime]::Now.ToString("yyyy.M.d.HHmm"))</ver>
+		<PackageId>DailyEDI.$(AssemblyName)</PackageId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\Desktop\logos\128x114.jpg">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="dotnet pack -p:PackageVersion=$(ver) --no-build --configuration $(Configuration) --output &quot;$(SolutionDir)nuget" />
+		<Exec Command="nuget sign &quot;$(SolutionDir)nuget\DailyEDI.$(AssemblyName).$(ver).nupkg&quot; -CertificateSubjectName &quot;Daily EDI&quot;  -Timestamper http://timestamp.sectigo.com" />
+	</Target>
 
 </Project>

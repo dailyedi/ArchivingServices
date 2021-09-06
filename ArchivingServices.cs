@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using ArchivingServices.Structure;
 
 namespace ArchivingServices
-{
-    /// <summary>
-    /// a simple library used to encapsulate and wrap System.IO.Compression.ZipFile
-    /// functions in a more real world common scenario 
-    /// </summary>
+{    
+     /// <summary>
+     /// a simple library used to encapsulate and wrap System.IO.Compression.ZipFile
+     /// functions in a more real world common scenario 
+     /// </summary>
     public static class ArchivingServices
     {
         /// <summary>
