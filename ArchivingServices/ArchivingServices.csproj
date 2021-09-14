@@ -24,10 +24,6 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="NUnit" Version="3.13.2" />
-	</ItemGroup>
-
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="dotnet pack -p:PackageVersion=$(ver) --no-build --configuration $(Configuration) --output &quot;$(SolutionDir)nuget" />
 		<Exec Command="nuget sign &quot;$(SolutionDir)nuget\DailyEDI.$(AssemblyName).$(ver).nupkg&quot; -CertificateSubjectName &quot;Daily EDI&quot;  -Timestamper http://timestamp.sectigo.com" />
