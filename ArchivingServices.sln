@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31612.314
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchivingServices", "ArchivingServices.csproj", "{9ED47D68-2DA5-4C76-93D7-7E5EC9BC2B4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject1", "TestProject1\TestProject1.csproj", "{8C0E16FE-53AF-4822-8FE3-1EBA106A7F5C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchivingServices", "ArchivingServices\ArchivingServices.csproj", "{9ED63049-5B6A-405F-80A6-2FF83B3257B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9ED47D68-2DA5-4C76-93D7-7E5EC9BC2B4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9ED47D68-2DA5-4C76-93D7-7E5EC9BC2B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9ED47D68-2DA5-4C76-93D7-7E5EC9BC2B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9ED47D68-2DA5-4C76-93D7-7E5EC9BC2B4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C0E16FE-53AF-4822-8FE3-1EBA106A7F5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C0E16FE-53AF-4822-8FE3-1EBA106A7F5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C0E16FE-53AF-4822-8FE3-1EBA106A7F5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C0E16FE-53AF-4822-8FE3-1EBA106A7F5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ED63049-5B6A-405F-80A6-2FF83B3257B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ED63049-5B6A-405F-80A6-2FF83B3257B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ED63049-5B6A-405F-80A6-2FF83B3257B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ED63049-5B6A-405F-80A6-2FF83B3257B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
