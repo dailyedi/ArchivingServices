@@ -5,12 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace TestProject1
 {
     public class Tests
     {
+        
+        #region commented
 
         #region ArchiveFilesInRootFolder
 
@@ -19,16 +22,21 @@ namespace TestProject1
         {
             List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/New folder{}/test2.txt" };
 
-            Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_1.zip"));
-            Assert.That(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_2.zip"));
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
+            ZipArchive Archive1 = new ZipArchive(memoryStream1);
 
-            string zipPath = @"D:/ArchiveFilesInRootFolder_true_1.zip";
-            string extractPath = @"D:/extract";
+            Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
 
-            Assert.IsTrue(File.Exists("D:/ArchiveFilesInRootFolder_true_1.zip") && File.Exists("D:/ArchiveFilesInRootFolder_true_2.zip"));
+            //Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_1.zip"));
+            //Assert.That(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_2.zip"));
 
-            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
-            Assert.IsTrue(File.Exists("D:/extract/test2.txt")&& File.Exists("D:/extract/test.txt"));
+            //string zipPath = @"D:/ArchiveFilesInRootFolder_true_1.zip";
+            //string extractPath = @"D:/extract";
+
+            //Assert.IsTrue(File.Exists("D:/ArchiveFilesInRootFolder_true_1.zip") && File.Exists("D:/ArchiveFilesInRootFolder_true_2.zip"));
+
+            //using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
+            //Assert.IsTrue(File.Exists("D:/extract/test2.txt") && File.Exists("D:/extract/test.txt"));
         }
 
         [Test]
@@ -37,7 +45,7 @@ namespace TestProject1
             List<string> y = new List<string>() { "D:/New folder{}/", "D:/New folder{}/test2" };
 
             Assert.False(ArchivingServicess.ArchiveFilesInRootFolder(y, "E:/Newfolder"));
-            
+
             Assert.False(ArchivingServicess.ArchiveFilesInRootFolder(new List<string> { "D:/New folder{}/test.txt", "D:/New folder{}/test2.txt" }, "E:/Newfolder"));
             Assert.False(File.Exists("E:/Newfolder"));
 
@@ -115,7 +123,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFiles_false()
         {
-            List<ZipFileConfig> zipFileConfigs = new List<ZipFileConfig>() { new ZipFileConfig("D:/New folder{}/.","test.txt")};
+            List<ZipFileConfig> zipFileConfigs = new List<ZipFileConfig>() { new ZipFileConfig("D:/New folder{}/.", "test.txt") };
 
             Assert.False(ArchivingServicess.ArchiveFiles(zipFileConfigs, "D:/"));
             Assert.NotNull(ArchivingServicess.ArchiveFiles(zipFileConfigs, "D:/"));
@@ -200,6 +208,43 @@ namespace TestProject1
 
         #endregion
 
+        #region ArchiveStreamFiles
+
+        [Test]
+        public void Test_MemoryStream_Dic_true()
+        {
+            Dictionary<string, string> dic = new Dictionary<string, string>() { };
+            dic.Add("D:/New folder{}/test.txt", "test.txt");
+
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(dic).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+
+            Assert.AreEqual("test.txt", Archive.Entries[0].Name);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+
+
+
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFile("D:/New folder{}/test.txt", "new/test.txt").ToArray());
+            ZipArchive Archive1 = new ZipArchive(memoryStream1);
+
+            Assert.AreEqual("new/test.txt", Archive1.Entries[0].FullName);
+
+
+
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream2 = new MemoryStream(byteArray);
+
+            Dictionary<string, Stream> dic2 = new Dictionary<string, Stream>() { };
+            dic2.Add("D:/New folder{}/test.txt", stream2);
+
+            MemoryStream memoryStream2 = new MemoryStream(ArchivingServicess.ArchiveFilesStreamAsync(dic2).ToArray());
+            ZipArchive Archive2 = new ZipArchive(memoryStream2);
+
+            Assert.AreEqual("test.txt", Archive2.Entries[0].FullName);
+        }
+
+        #endregion
+
         #region ArchiveFiles
 
         [Test]
@@ -209,12 +254,11 @@ namespace TestProject1
             dic.Add("D:/New folder{}/test.txt", "test.txt");
 
             Assert.IsTrue(ArchivingServicess.ArchiveFiles(dic, "D:/ArchiveFiles_true_1.zip"));
-            Assert.That(ArchivingServicess.ArchiveFiles(dic, "D:/ArchiveFiles_true_2.zip"));
 
             string zipPath = @"D:/ArchiveFiles_true_1.zip";
             string extractPath = @"D:/extract";
 
-            Assert.True(File.Exists("D:/ArchiveFiles_true_1.zip") && File.Exists("D:/ArchiveFiles_true_2.zip"));
+            Assert.True(File.Exists("D:/ArchiveFiles_true_1.zip"));
 
             using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
             Assert.True(File.Exists("D:/extract/test.txt"));
@@ -268,7 +312,7 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream,"test.txt") };
+            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream, "test.txt") };
 
             Assert.False(ArchivingServicess.ArchiveFiles(zipFileConfigs, "D:/"));
             Assert.NotNull(ArchivingServicess.ArchiveFiles(zipFileConfigs, "D:/"));
@@ -294,7 +338,6 @@ namespace TestProject1
             Assert.IsTrue(ArchivingServicess.ArchiveFile(zipFileConfigs, "D:/ArchiveFile_ZipStreamConfig_true_1.zip"));
             Assert.That(ArchivingServicess.ArchiveFile(zipFileConfigs, "D:/ArchiveFile_ZipStreamConfig_true_2.zip"));
 
-
             string zipPath = @"D:/ArchiveFile_ZipStreamConfig_true_1.zip";
             string extractPath = @"D:/extract";
 
@@ -302,8 +345,6 @@ namespace TestProject1
 
             using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
             Assert.True(File.Exists("D:/extract/test.txt"));
-
-
         }
 
         [Test]
@@ -350,8 +391,8 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            Assert.False(ArchivingServicess.ArchiveFile("",fileStream, "D:/"));
-            Assert.NotNull(ArchivingServicess.ArchiveFile("",fileStream, "D:/"));
+            Assert.False(ArchivingServicess.ArchiveFile("", fileStream, "D:/"));
+            Assert.NotNull(ArchivingServicess.ArchiveFile("", fileStream, "D:/"));
 
             Assert.That(ArchivingServicess.ArchiveFile("", fileStream, "D:/"), Is.Not.Null);
             Assert.That(!ArchivingServicess.ArchiveFile("", fileStream, "D:/"));
@@ -369,7 +410,7 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream,"test.txt") };
+            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream, "test.txt") };
 
             Assert.IsTrue(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_true_1.zip"));
             Assert.That(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_true_2.zip"));
@@ -388,7 +429,7 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream,"test.txt")};
+            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream, "test.txt") };
 
             Assert.False(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/"));
             Assert.NotNull(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/"));
@@ -408,7 +449,7 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            ZipStreamConfig zipFileConfigs =new ZipStreamConfig(fileStream, "test.txt" );
+            ZipStreamConfig zipFileConfigs = new ZipStreamConfig(fileStream, "test.txt");
 
             Assert.IsTrue(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_class_true_1.zip"));
             Assert.That(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_class_true_2.zip"));
@@ -428,7 +469,7 @@ namespace TestProject1
         {
             var fileStream = File.Create("D:/New folder{}/test.txt");
 
-            ZipStreamConfig zipFileConfigs = new ZipStreamConfig (fileStream,"test.txt");
+            ZipStreamConfig zipFileConfigs = new ZipStreamConfig(fileStream, "test.txt");
 
             Assert.False(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/"));
             Assert.NotNull(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/"));
@@ -481,18 +522,18 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFilesStream_true()
         {
-            var fileStream = File.Create("D:/New folder{}/test.txt");
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
 
             Dictionary<string, Stream> dic = new Dictionary<string, Stream>() { };
-            dic.Add("test.txt", fileStream);
+            dic.Add("test.txt", stream);
 
             Assert.IsTrue(ArchivingServicess.ArchiveFilesStream(dic, "D:/ArchiveFilesStream_true_1.zip"));
-            Assert.That(ArchivingServicess.ArchiveFilesStream(dic, "D:/ArchiveFilesStream_true_2.zip"));
 
             string zipPath = @"D:/ArchiveFilesStream_true_1.zip";
             string extractPath = @"D:/extract";
 
-            Assert.True(File.Exists("D:/ArchiveFilesStream_true_1.zip") && File.Exists("D:/ArchiveFilesStream_true_2.zip"));
+            Assert.True(File.Exists("D:/ArchiveFilesStream_true_1.zip"));
 
             using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
             Assert.True(File.Exists("D:/extract/test.txt"));
@@ -508,7 +549,7 @@ namespace TestProject1
             dic.Add("test.txt", fileStream);
 
             Assert.False(ArchivingServicess.ArchiveFilesStream(dic, "D:/"));
-            Assert.NotNull(ArchivingServicess.ArchiveFilesStream(dic ,"D:/"));
+            Assert.NotNull(ArchivingServicess.ArchiveFilesStream(dic, "D:/"));
 
             Assert.That(ArchivingServicess.ArchiveFilesStream(dic, "D:/"), Is.Not.Null);
             Assert.That(!ArchivingServicess.ArchiveFilesStream(dic, "D:/"));
@@ -525,18 +566,19 @@ namespace TestProject1
         [Test]
         public async Task Test_ArchiveFilesStreamAsync_true()
         {
-            var fileStream = File.Create("D:/New folder{}/test.txt");
+
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
 
             Dictionary<string, Stream> dic = new Dictionary<string, Stream>() { };
-            dic.Add("test.txt", fileStream);
-               
+            dic.Add("test.txt", stream);
+
             Assert.IsTrue(await ArchivingServicess.ArchiveFilesStreamAsync(dic, "D:/ArchiveFilesStream_true_1.zip"));
-            Assert.That(await ArchivingServicess.ArchiveFilesStreamAsync(dic, "D:/ArchiveFilesStream_true_2.zip"));
 
             string zipPath = @"D:/ArchiveFilesStream_true_1.zip";
             string extractPath = @"D:/extract";
 
-            Assert.True(File.Exists("D:/ArchiveFilesStream_true_1.zip") && File.Exists("D:/ArchiveFilesStream_true_2.zip"));
+            Assert.True(File.Exists("D:/ArchiveFilesStream_true_1.zip"));
 
             using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
             Assert.True(File.Exists("D:/extract/test.txt"));
@@ -561,6 +603,233 @@ namespace TestProject1
             Assert.False(File.Exists("D:/extract/test.txt"));
         }
 
+        #endregion 
+        #endregion
+
+        #region Stream
+
+        #region ArchiveFilesInRootFolder
+        [Test]
+        public void Test_ArchiveFilesInRootFolder_Memorystream()
+        {
+            List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/New folder{}/test2.txt" };
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
+            ZipArchive Archive1 = new ZipArchive(memoryStream1);
+            Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveSingleFileInRootFolder
+        [Test]
+        public void Test_ArchiveSingleFileInRootFolder_MemoryStream()
+        {
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveSingleFileInRootFolder("D:/New folder{}/test.txt").ToArray());
+            ZipArchive Archive1 = new ZipArchive(memoryStream1);
+            Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveFiles_List<ZipFileConfig>
+        [Test]
+        public void Test_ArchiveFiles_MemoryStream()
+        {
+
+            List<ZipFileConfig> zipFileConfigss = new List<ZipFileConfig>() {new ZipFileConfig("D:/New folder{}/test.txt","test.txt") };
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(zipFileConfigss).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveSingleFile_ZipFileConfig
+        [Test]
+        public void Test_ArchiveSingleFile_MemoryStream()
+        {
+            ZipFileConfig zipFileConfigs = new ZipFileConfig("D:/New folder{}/test.txt", "new/test.txt");
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveSingleFile(zipFileConfigs).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("new/test.txt", Archive.Entries[0].FullName);
+        }
+
+        #endregion
+
+        #region ArchiveFiles
+
+        [Test]
+        public void Test_ArchiveFile_MemoryStream()
+        {
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFile("D:/New folder{}/test.txt", "new/test.txt").ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("new/test.txt", Archive.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveStreamFiles
+        [Test]
+        public void Test_MemoryStream_Dic_MemoryStream()
+        {
+
+            Dictionary<string, string> dic = new Dictionary<string, string>() { { "D:/New folder{}/test.txt", "test.txt" } };
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(dic).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+
+        #endregion
+
+        #region ArchiveFiles
+        [Test]
+        public void Test_ArchiveFiles_Dic_MemoryStream()
+        {
+            Dictionary<string, string> dic = new Dictionary<string, string>() { { "D:/New folder{}/test.txt", "test.txt" } };
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(dic).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveFiles_List<ZipStreamConfig>
+
+        [Test]
+        public void Test_ArchiveFiles_ListZipStreamConfig_MemoryStream()
+        {
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
+            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(stream,"test.txt") };
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(zipFileConfigs).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveFile_ZipStreamConfig
+        [Test]
+        public void Test_ArchiveFile_ZipStreamConfig_MemoryStream()
+        {
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
+            ZipStreamConfig zipFileConfigs = new ZipStreamConfig(stream, "test.txt");
+            MemoryStream memoryStream2 = new MemoryStream(ArchivingServicess.ArchiveFile(zipFileConfigs).ToArray());
+            ZipArchive Archive2 = new ZipArchive(memoryStream2);
+            Assert.AreEqual("test.txt", Archive2.Entries[0].FullName);
+
+        }
+
+        #endregion
+
+        #region ArchiveFile_3String
+        [Test]
+        public void Test_ArchiveFile_3String_MemoryStream()
+        {
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFile("test.txt", stream).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+        #endregion
+
+        #region ArchiveFilesAsync
+
+        [Test]
+        public async Task Test_ArchiveFilesAsync_MemoryStream()
+        {
+
+
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
+            List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(stream, "test.txt") };
+
+            var x = ArchivingServicess.ArchiveFilesAsync(zipFileConfigs).Result;
+            ZipArchive Archive = new ZipArchive(x);
+
+
+            //ZipArchive Archive = new ZipArchive(x.Result.ToArray());
+            //Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+
+
+            //var fileStream = File.Create("D:/New folder{}/test.txt");
+
+            //List<ZipStreamConfig> zipFileConfigs = new List<ZipStreamConfig>() { new ZipStreamConfig(fileStream, "test.txt") };
+
+            //Assert.IsTrue(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_true_1.zip"));
+            //Assert.That(await ArchivingServicess.ArchiveFilesAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_true_2.zip"));
+
+            //string zipPath = @"D:/Test_ArchiveFilesAsync_true_1.zip";
+            //string extractPath = @"D:/extract";
+
+            //Assert.True(File.Exists("D:/Test_ArchiveFilesAsync_true_1.zip") && File.Exists("D:/Test_ArchiveFilesAsync_true_2.zip"));
+
+            //using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
+            //Assert.True(File.Exists("D:/extract/test.txt"));
+        }
+        #endregion
+
+        #region ArchiveFilesAsync
+        [Test]
+        public async Task Test_ArchiveFilesAsync_class_MemoryStream()
+        {
+            //byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            //MemoryStream stream = new MemoryStream(byteArray);
+            //ZipStreamConfig zipFileConfigs = new ZipStreamConfig(stream, "test.txt");
+            //MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFileAsync(zipFileConfigs).ToArray());
+            //ZipArchive Archive = new ZipArchive(memoryStream);
+            //Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+
+
+            //Assert.IsTrue(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_class_true_1.zip"));
+            //Assert.That(await ArchivingServicess.ArchiveFileAsync(zipFileConfigs, "D:/Test_ArchiveFilesAsync_class_true_2.zip"));
+
+            string zipPath = @"D:/Test_ArchiveFilesAsync_class_true_1.zip";
+            string extractPath = @"D:/extract";
+
+            Assert.True(File.Exists("D:/Test_ArchiveFilesAsync_class_true_1.zip") && File.Exists("D:/Test_ArchiveFilesAsync_class_true_2.zip"));
+
+            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
+            Assert.True(File.Exists("D:/extract/test.txt"));
+
+        }
+        #endregion
+
+        //#region ArchiveFilesAsync
+        //[Test]
+        //public async Task Test_ArchiveFilesAsync_3string_true()
+        //{
+        //    var fileStream = File.Create("D:/New folder{}/test.txt");
+
+        //    Assert.IsTrue(await ArchivingServicess.ArchiveFileAsync("test.txt", fileStream, "D:/Test_ArchiveFilesAsync_3string_true_1.zip"));
+        //    Assert.That(await ArchivingServicess.ArchiveFileAsync("test.txt", fileStream, "D:/Test_ArchiveFilesAsync_3string_true_2.zip"));
+
+        //    string zipPath = @"D:/Test_ArchiveFilesAsync_3string_true_1.zip";
+        //    string extractPath = @"D:/extract";
+
+        //    Assert.True(File.Exists("D:/Test_ArchiveFilesAsync_3string_true_1.zip") && File.Exists("D:/Test_ArchiveFilesAsync_3string_true_2.zip"));
+
+        //    using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { archive.ExtractToDirectory(extractPath); }
+        //    Assert.True(File.Exists("D:/extract/test.txt"));
+
+        //}
+
+
+        //#endregion
+
+        #region ArchiveFilesStream
+
+        [Test]
+        public void Test_ArchiveFilesStream_MemoryStream()
+        {
+            byte[] byteArray = Encoding.ASCII.GetBytes("test.txt");
+            MemoryStream stream = new MemoryStream(byteArray);
+
+            Dictionary<string, Stream> dic = new Dictionary<string, Stream>() { };
+            dic.Add("test.txt", stream);
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFilesStream(dic).ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+
+
+        #endregion
         #endregion
     }
 }
