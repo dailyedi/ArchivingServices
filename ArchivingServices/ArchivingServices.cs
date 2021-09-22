@@ -365,38 +365,7 @@ namespace ArchivingServices
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
 
-        //public static void ArchiveDirectory(string directoryPathOnDisk, bool allowEmptyNode = true)
-        //{
-        //    var archivePath = directoryPathOnDisk + ".zip";
-        //    var pathRes = GetPaths(directoryPathOnDisk, allowEmptyNode);
-        //    var ms = ArchiveFiles(pathRes);
-        //    File.WriteAllBytes(archivePath, ms.ToArray());
-        //}
-        //public static MemoryStream ArchiveDirectoryStream(string wantedPath, bool node = true)
-        //{
-        //    var pathRes = GetPaths(wantedPath, node);
-        //    return ArchiveFiles(pathRes);
-        //}
-        //private static Dictionary<string, string> GetPaths(string wantedPath, bool node)
-        //{
-        //    Dictionary<string, string> Paths = new Dictionary<string, string>();
-        //    var files = Directory.GetFiles(wantedPath, "*.*", SearchOption.AllDirectories);
-        //    var dirctories = Directory.GetDirectories(wantedPath, "*.*", SearchOption.AllDirectories);
-        //    foreach (var filepath in files)
-        //    {
-        //        var finalres = filepath.Substring(wantedPath.Length + 1);
-        //        Paths.Add(filepath, finalres);
-        //    }
-        //    if (node)
-        //    {
-        //        dirctories?.Where(d => !files.Any(f => f.Contains(d)))
-        //                  ?.ToList()
-        //                  ?.ForEach(ed => Paths.Add(ed.Substring(wantedPath.Length + 1), null));
-        //    }
-        //    return Paths;
-
-        //}
-
+        
 
         //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
         //TODO: add files to existing archive
