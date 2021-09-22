@@ -242,6 +242,71 @@ namespace ArchivingServices
         }
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
+        public static void Archive_directory( string directory_path,bool node=true )
+        {
+             var archivePath = wantedPath + ".zip";
+            var pathRes = getPaths(directory_path,node);
+            var ms = Archive_directory_ReturnedStream(pathRes);
+            File.WriteAllBytes(archivePath, ms.ToArray());
+        }
+        public static MemoryStream Archive_directory_Stream(string wantedPath,bool node=true)
+        {
+            var pathRes = getPaths(wantedPath,node);
+            return Archive_directory_ReturnedStream(pathRes);
+        }
+        public static MemoryStream Archive_directory_ReturnedStream(Dictionary<string, string>  listofPaths)
+        {
+            try
+            {
+                var memoryStream = new MemoryStream();
+                using (memoryStream)
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    {
+                        foreach (var item in listofPaths)
+                        {
+                            if (item.Value!="EmpytyFolder")
+                                archive.CreateEntryFromFile(item.Key, item.Value);
+                            else
+                                archive.CreateEntry(item.Key+"\\");
+                        }
+                    }
+                }
+                return memoryStream;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public static  Dictionary<string, string> getPaths(string wantedPath, bool node)
+        {
+             Dictionary<string, string> Paths = new Dictionary<string, string>();
+            var files = Directory.GetFiles(wantedPath, "*.*", SearchOption.AllDirectories);
+            var dirctories = Directory.GetDirectories(wantedPath, "*.*", SearchOption.AllDirectories);
+            foreach (var filepath in files)
+            {
+                var res = filepath.Split(wantedPath);
+                var finalres = res[1].Substring(1);
+                Paths.Add(filepath, finalres);
+            }
+            if (node)
+            {
+                foreach (var dir in dirctories)
+                {
+                    var d = files.Where(f => f.Contains(dir)).ToList();
+                    if (d.Count == 0)
+                    {
+                        var res = dir.Split(wantedPath);
+                        var finalres = res[1].Substring(1);
+                        Paths.Add(finalres, "EmpytyFolder");
+                    }
+                }
+            }
+            return Paths;
+
+        }
+
         //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
         //TODO: add files to existing archive
         //TODO: get files metadata from archive
