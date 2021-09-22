@@ -242,69 +242,87 @@ namespace ArchivingServices
         }
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
-        public static void Archive_directory( string directory_path,bool node=true )
+
+        /// <summary>
+        /// a simple function that wraps the functionality for archiving a Directory 
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
+        /// <returns>no return Just save archived directory on same path of directory</returns>
+        public static void ArchiveDirectory(string directoryPathOnDisk, bool allowEmptyNode = true)
         {
-             var archivePath = wantedPath + ".zip";
-            var pathRes = getPaths(directory_path,node);
-            var ms = Archive_directory_ReturnedStream(pathRes);
-            File.WriteAllBytes(archivePath, ms.ToArray());
+            var archivedPath = directoryPathOnDisk + ".zip";
+            var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
+            var archivedStream = ArchiveFiles(pathsResult);
+            File.WriteAllBytes(archivedPath, archivedStream.ToArray());
         }
-        public static MemoryStream Archive_directory_Stream(string wantedPath,bool node=true)
+        /// <summary>
+        /// a simple function that wraps the functionality for archiving a Directory 
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
+        /// <returns>return archived directory as a Stream Formate</returns>
+        public static MemoryStream ArchiveDirectoryStream(string directoryPathOnDisk, bool allowEmptyNode = true)
         {
-            var pathRes = getPaths(wantedPath,node);
-            return Archive_directory_ReturnedStream(pathRes);
+            var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
+            return ArchiveFiles(pathsResult);
         }
-        public static MemoryStream Archive_directory_ReturnedStream(Dictionary<string, string>  listofPaths)
+        /// <summary>
+        /// a simple function that wraps the functionality for Getting Paths For All Files And Directories
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="allowEmptyNode">a flag determines that do you want Empty Directories or not </param>
+        /// <returns> return a Dictionary that Contains Key:phisycal path of file,Value:relative path for Archived Directory </returns>
+        private static Dictionary<string, string> GetDirctoryPaths(string directoryPathOnDisk, bool allowEmptyNode)
         {
-            try
+            Dictionary<string, string> Paths = new Dictionary<string, string>();
+            var files = Directory.GetFiles(directoryPathOnDisk, "*.*", SearchOption.AllDirectories);
+            var dirctories = Directory.GetDirectories(directoryPathOnDisk, "*.*", SearchOption.AllDirectories);
+            files.ToList().ForEach(rf => Paths.Add(rf, rf.Substring(directoryPathOnDisk.Length + 1)));
+            if (allowEmptyNode)
             {
-                var memoryStream = new MemoryStream();
-                using (memoryStream)
-                {
-                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-                    {
-                        foreach (var item in listofPaths)
-                        {
-                            if (item.Value!="EmpytyFolder")
-                                archive.CreateEntryFromFile(item.Key, item.Value);
-                            else
-                                archive.CreateEntry(item.Key+"\\");
-                        }
-                    }
-                }
-                return memoryStream;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        public static  Dictionary<string, string> getPaths(string wantedPath, bool node)
-        {
-             Dictionary<string, string> Paths = new Dictionary<string, string>();
-            var files = Directory.GetFiles(wantedPath, "*.*", SearchOption.AllDirectories);
-            var dirctories = Directory.GetDirectories(wantedPath, "*.*", SearchOption.AllDirectories);
-            foreach (var filepath in files)
-            {
-                var res = filepath.Split(wantedPath);
-                var finalres = res[1].Substring(1);
-                Paths.Add(filepath, finalres);
-            }
-            if (node)
-            {
-                foreach (var dir in dirctories)
-                {
-                    var d = files.Where(f => f.Contains(dir)).ToList();
-                    if (d.Count == 0)
-                    {
-                        var res = dir.Split(wantedPath);
-                        var finalres = res[1].Substring(1);
-                        Paths.Add(finalres, "EmpytyFolder");
-                    }
-                }
+                // Getting Paths Of Empty Directories
+                dirctories?.Where(d => !files.Any(f => f.Contains(d)))
+                          ?.ToList()
+                          ?.ForEach(r => Paths.Add(r.Substring(directoryPathOnDisk.Length + 1), null));
             }
             return Paths;
+        }
 
+
+        /// <summary>
+        /// a simple function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <returns>no return Just save archived directory on same path of directory which Contains All files in Same Directory Ignoring Sub Directpries </returns>
+        public static void ArchiveDirectoryPlates(string directoryPathOnDisk)
+        {
+            var archivedPath = directoryPathOnDisk + ".zip";
+            var pathsResult = GetDirctoryPathsPlates(directoryPathOnDisk);
+            var archivedStream = ArchiveFolder(pathsResult);
+            File.WriteAllBytes(archivedPath, archivedStream.ToArray());
+        }
+        /// <summary>
+        /// a simple function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <returns> return archived directory As a Stream which Contains All files in Same Directory Ignoring Sub Directpries </returns>
+        public static MemoryStream ArchiveDirectoryPlatesStream(string directoryPathOnDisk)
+        {
+            var pathsResult = GetDirctoryPathsPlates(directoryPathOnDisk);
+            return ArchiveFolder(pathsResult);
+        }
+        /// <summary>
+        /// a simple function that wraps the functionality for Getting Paths For All Files  
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <returns> return a Dictionary that Contains Key:phisycal path of file,Value:relative path for Archived Directory </returns>
+        public static Dictionary<string, string> GetDirctoryPathsPlates(string directoryPathOnDisk)
+        {
+            Dictionary<string, string> Paths = new Dictionary<string, string>();
+            var files = Directory.GetFiles(directoryPathOnDisk, "*.*", SearchOption.AllDirectories);
+            files.ToList().ForEach(f => Paths.Add(f, Path.GetFileName(f)));
+            return Paths;
         }
 
         //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
@@ -316,5 +334,7 @@ namespace ArchivingServices
         //TODO: extract archive as flat directory
         //TODO: extract archive to directory
         //TODO: overloads to specify the compressing algorithm with more support than the LZ77/78, DEFLATE like rar and others
+    
     }
+
 }
