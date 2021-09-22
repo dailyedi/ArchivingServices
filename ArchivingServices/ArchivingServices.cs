@@ -24,12 +24,12 @@ namespace ArchivingServices
         public static bool ArchiveFilesInRootFolder(List<string> inFilesList, string archivePath) =>
             ArchiveFiles(inFilesList.ToDictionary(f => f, Path.GetFileName), archivePath);
         /// <summary>
-        /// archive files in the list of paths inFilesList to the destination archivePath
+        /// archive files in the list of paths inFilesList to the stream archive
         /// with using the file names in the archive from Path.GetFileName and add
         /// all of them in the root directory of the archive
         /// </summary>
         /// <param name="inFilesList">the files path list to archive</param>
-        /// <returns>Memory Stream</returns>
+        /// <returns>MemoryStream</returns>
         public static MemoryStream ArchiveFilesInRootFolder(List<string> inFilesList) =>
              ArchiveFiles(inFilesList.ToDictionary(f => f, Path.GetFileName));
         /// <summary>
@@ -46,12 +46,12 @@ namespace ArchivingServices
                 {inFile, Path.GetFileName(inFile)}
             }, archivePath);
         /// <summary>
-        /// archive a single file to the destination archivePath
+        /// archive a single file to the destination stream archive
         /// with using the file name in the archive from Path.GetFileName and add
         /// all of them in the root directory of the archive
         /// </summary>
         /// <param name="inFile">the file path to archive</param>
-        /// <returns>Memory Stream</returns>
+        /// <returns>MemoryStream</returns>
         public static MemoryStream ArchiveSingleFileInRootFolder(string inFile) =>
             ArchiveFiles(new Dictionary<string, string> { { inFile, Path.GetFileName(inFile) } });
         /// <summary>
@@ -67,12 +67,11 @@ namespace ArchivingServices
                 z => z.FilePathInArchive), archivePath);
         /// <summary>
         /// archive files in the list of objects ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// can specify stream archive and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfigurationList">the list of objects ZipFileConfig to archive</param>
-        /// <param name="archivePath">the zip file path to create</param>
-        /// <returns>Memory Stream</returns>
+        /// <returns>MemoryStream</returns>
         public static MemoryStream ArchiveFiles(List<ZipFileConfig> zipConfigurationList) =>
             ArchiveFiles(zipConfigurationList.ToDictionary(z => z.FilePathOnDisk, z => z.FilePathInArchive));
         /// <summary>
@@ -89,7 +88,7 @@ namespace ArchivingServices
             , archivePath);
         /// <summary>
         /// archive file in the ZipFileConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// can specify the stream archive and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipFileConfiguration">the object ZipFileConfig to archive</param>
@@ -123,11 +122,10 @@ namespace ArchivingServices
         /// zipping file dictionary into MemoryStream
         /// </summary>
         /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
-        /// <returns>memoryStream or null</returns>
+        /// <returns>memoryStream</returns>
         public static MemoryStream ArchiveFiles(Dictionary<string, string> inFilesDictionary)
         {
-            var memoryStream = new MemoryStream();
-            using (memoryStream)
+            using (var memoryStream = new MemoryStream())
             {
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
@@ -138,9 +136,9 @@ namespace ArchivingServices
                         else
                             archive.CreateEntry(kvp.Key + "\\");
                     }
+                    return memoryStream;
                 }
             }
-            return memoryStream;
         }
         /// <summary>
         /// a simple function that wraps the functionality for zipping file
@@ -164,7 +162,7 @@ namespace ArchivingServices
         }
         /// <summary>
         /// a simple function that wraps the functionality for zipping file
-        /// using the file path on disk and the file path in archive to be created
+        /// using the file path on stream archive and the file path in archive to be created
         /// </summary>
         /// <param name="filePathOnDisk">the file path on disk</param>
         /// <param name="filePathInArchive">the file path in the archive</param>
@@ -196,7 +194,7 @@ namespace ArchivingServices
         /// <param name="zipConfigurationList">the list of objects ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static MemoryStream ArchiveFiles(List<ZipStreamConfig> zipConfigurationList) =>
-             ArchiveFilesStreamAsync(zipConfigurationList.ToDictionary(z => z.FilePathInArchive, z => z.FileStream));
+              ArchiveFilesStream(zipConfigurationList.ToDictionary(z => z.FilePathInArchive, z => z.FileStream));
         /// <summary>
         /// archive files in the list of ZipStreamConfig which you
         /// can specify the file path on disk and the file path in the zip file
@@ -212,13 +210,13 @@ namespace ArchivingServices
             }, archivePath);
         /// <summary>
         /// archive files in the list of ZipStreamConfig which you
-        /// can specify the file path on disk and the file path in the zip file
+        /// can specify the file path on stream archive and the file path in the zip file
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfiguration">the list of objects called ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static MemoryStream ArchiveFile(ZipStreamConfig zipConfiguration) =>
-             ArchiveFilesStreamAsync(new Dictionary<string, Stream> {{ zipConfiguration.FilePathInArchive, zipConfiguration.FileStream }});
+             ArchiveFilesStream(new Dictionary<string, Stream> {{ zipConfiguration.FilePathInArchive, zipConfiguration.FileStream }});
         /// <summary>
         /// archive file from filePathInArchive which you can
         /// can specify the file stream and the file path in the zip file
@@ -235,14 +233,14 @@ namespace ArchivingServices
             }, archivePath);
         /// <summary>
         /// archive file from filePathInArchive which you can
-        /// can specify the file stream and the file path in the zip file
+        /// can specify the file stream and the file path in the stream archive
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="filePathInArchive">the file path in the archive to be created</param>
         /// <param name="fileStream">the file stream to archive</param>
         /// <returns>Memory Stream</returns>
         public static MemoryStream ArchiveFile(string filePathInArchive, Stream fileStream) =>
-             ArchiveFilesStreamAsync(new Dictionary<string, Stream> { { filePathInArchive, fileStream } });
+             ArchiveFilesStream(new Dictionary<string, Stream> { { filePathInArchive, fileStream } });
         /// <summary>
         /// archive files in the list of ZipStreamConfig which you
         /// can specify the file stream and the file path in the zip file
@@ -256,13 +254,13 @@ namespace ArchivingServices
                 z => z.FileStream), archivePath);
         /// <summary>
         /// archive files in the list of ZipStreamConfig which you
-        /// can specify the file stream and the file path in the zip file
+        /// can specify the file stream and the file path in the stream archive
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfigurationList">the list of objects called ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static async Task<MemoryStream> ArchiveFilesAsync(List<ZipStreamConfig> zipConfigurationList) =>
-            ArchiveFilesStreamAsync(zipConfigurationList.ToDictionary(z => z.FilePathInArchive,
+            await ArchiveFilesStreamAsync(zipConfigurationList.ToDictionary(z => z.FilePathInArchive,
                 z => z.FileStream));
         /// <summary>
         /// archive file Async using the stream object ZipStreamConfig which you
@@ -279,13 +277,13 @@ namespace ArchivingServices
             }, archivePath);
         /// <summary>
         /// archive file Async using the stream object ZipStreamConfig which you
-        /// can specify the file stream and the file path in the zip file
+        /// can specify the file stream and the file path in the stream archive
         /// which gives you more control over having everything in the root folder
         /// </summary>
         /// <param name="zipConfiguration">the list of objects called ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static async Task<MemoryStream> ArchiveFileAsync(ZipStreamConfig zipConfiguration) =>
-             ArchiveFilesStreamAsync(new Dictionary<string, Stream>
+             await ArchiveFilesStreamAsync(new Dictionary<string, Stream>
             {{ zipConfiguration.FilePathInArchive, zipConfiguration.FileStream }});
         /// <summary>
         /// archive file Async using the stream provided with the file path in archive
@@ -300,8 +298,15 @@ namespace ArchivingServices
             {
                 { filePathInArchive, fileStream }
             }, archivePath);
+        /// <summary>
+        /// archive file Async using the stream provided with the file path in archive
+        /// which gives you more control over having everything in the root folder
+        /// </summary>
+        /// <param name="filePathInArchive">the file path in the archive to be created</param>
+        /// <param name="fileStream">the file stream to archive</param>
+        /// <returns>Memory Stream</returns>
         public static async Task<MemoryStream> ArchiveFileAsync(string filePathInArchive, Stream fileStream) =>
-            ArchiveFilesStreamAsync(new Dictionary<string, Stream> {{ filePathInArchive, fileStream } });
+            await ArchiveFilesStreamAsync(new Dictionary<string, Stream> {{ filePathInArchive, fileStream } });
         /// <summary>
         /// a simple function that wraps the functionality for zipping file list into an archive
         /// </summary>
@@ -312,7 +317,7 @@ namespace ArchivingServices
         {
             try
             {
-                File.WriteAllBytes(archivePath, ArchiveFilesStreamAsync(inFilesDictionary).ToArray());
+                File.WriteAllBytes(archivePath, ArchiveFilesStream(inFilesDictionary).ToArray());
                 return File.Exists(archivePath);
             }
             catch
@@ -321,12 +326,20 @@ namespace ArchivingServices
             }
         }
         /// <summary>
-        /// a simple function that wraps the functionality for zipping file list into an Stream archive
+        /// a simple function that wraps the functionality for zipping file list into an stream archive
         /// </summary>
         /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
         /// <returns>Memory Stream</returns>
-        public static MemoryStream ArchiveFilesStream(Dictionary<string, Stream> inFilesDictionary) =>
-            ArchiveFilesStreamAsync(inFilesDictionary);
+        public static MemoryStream ArchiveFilesStream(Dictionary<string, Stream> inFilesDictionary)
+        {
+            var dic = new Dictionary<string, string>() { };
+            foreach (var item in inFilesDictionary)
+            {
+                StreamReader reader = new StreamReader(item.Value);
+                dic.Add(item.Key, reader.ReadToEnd());
+            }
+            return ArchiveFiles(dic);
+        }
         /// <summary>
         /// a simple function that wraps the functionality for zipping files list async into an archive
         /// </summary>
@@ -337,7 +350,10 @@ namespace ArchivingServices
         {
             try
             {
-                File.WriteAllBytes(archivePath, ArchiveFilesStreamAsync(inFilesDictionary).ToArray());
+                using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create))
+                    foreach (var kvp in inFilesDictionary)
+                        using (var entryStream = zip.CreateEntry(kvp.Key).Open())
+                            await kvp.Value.CopyToAsync(entryStream);
                 return File.Exists(archivePath);
             }
             catch
@@ -346,58 +362,23 @@ namespace ArchivingServices
             }
         }
         /// <summary>
-        /// a simple function that wraps the functionality for zipping files list into an Stream archive
+        /// a simple function that wraps the functionality for zipping files list into an stream archive
         /// </summary>
         /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
-        /// <returns>MemoryStream</returns>
-        public static MemoryStream ArchiveFilesStreamAsync(Dictionary<string, Stream> inFilesDictionary)
+        /// <returns>memorystream</returns>
+        public static async Task<MemoryStream> ArchiveFilesStreamAsync(Dictionary<string, Stream> inFilesDictionary)
         {
 
             var dic = new Dictionary<string, string>() { };
             foreach (var item in inFilesDictionary)
             {
                 StreamReader reader = new StreamReader(item.Value);
-                string text = reader.ReadToEnd();
-                dic.Add(item.Key, text);
+                dic.Add(item.Key, await reader.ReadToEndAsync());
             }
             return ArchiveFiles(dic);
         }
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
-
-        //public static void ArchiveDirectory(string directoryPathOnDisk, bool allowEmptyNode = true)
-        //{
-        //    var archivePath = directoryPathOnDisk + ".zip";
-        //    var pathRes = GetPaths(directoryPathOnDisk, allowEmptyNode);
-        //    var ms = ArchiveFiles(pathRes);
-        //    File.WriteAllBytes(archivePath, ms.ToArray());
-        //}
-        //public static MemoryStream ArchiveDirectoryStream(string wantedPath, bool node = true)
-        //{
-        //    var pathRes = GetPaths(wantedPath, node);
-        //    return ArchiveFiles(pathRes);
-        //}
-        //private static Dictionary<string, string> GetPaths(string wantedPath, bool node)
-        //{
-        //    Dictionary<string, string> Paths = new Dictionary<string, string>();
-        //    var files = Directory.GetFiles(wantedPath, "*.*", SearchOption.AllDirectories);
-        //    var dirctories = Directory.GetDirectories(wantedPath, "*.*", SearchOption.AllDirectories);
-        //    foreach (var filepath in files)
-        //    {
-        //        var finalres = filepath.Substring(wantedPath.Length + 1);
-        //        Paths.Add(filepath, finalres);
-        //    }
-        //    if (node)
-        //    {
-        //        dirctories?.Where(d => !files.Any(f => f.Contains(d)))
-        //                  ?.ToList()
-        //                  ?.ForEach(ed => Paths.Add(ed.Substring(wantedPath.Length + 1), null));
-        //    }
-        //    return Paths;
-
-        //}
-
-
         //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
         //TODO: add files to existing archive
         //TODO: get files metadata from archive
