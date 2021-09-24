@@ -20,14 +20,14 @@ namespace TestProject1
         //[Test]
         //public void Test_ArchiveFilesInRootFolder_true()
         //{
-        //    List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/New folder{}/test2.txt" };
+        //    List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/test.txt" };
 
-        //    MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
-        //    ZipArchive Archive1 = new ZipArchive(memoryStream1);
+        //    //MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
+        //    //ZipArchive Archive1 = new ZipArchive(memoryStream1);
 
-        //    Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
+        //    //Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
 
-        //    //Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_1.zip"));
+        //    Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_1.zip"));
         //    //Assert.That(ArchivingServicess.ArchiveFilesInRootFolder(y, "D:/ArchiveFilesInRootFolder_true_2.zip"));
 
         //    //string zipPath = @"D:/ArchiveFilesInRootFolder_true_1.zip";
@@ -613,10 +613,11 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFilesInRootFolder_Memorystream()
         {
-            List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/New folder{}/test2.txt" };
+            List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/test.txt" };
             MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
             ZipArchive Archive1 = new ZipArchive(memoryStream1);
             Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
+            Assert.AreEqual("test - Copy (1).txt", Archive1.Entries[1].FullName);
         }
         #endregion
 

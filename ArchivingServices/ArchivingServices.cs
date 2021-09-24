@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ArchivingServices.Structure;
+using System.Security.Cryptography;
+using System;
+using System.Text;
 
 namespace ArchivingServices
 {
@@ -14,6 +17,25 @@ namespace ArchivingServices
     public static class ArchivingServicess
     {
         /// <summary>
+        /// rename duplicated file name
+        /// </summary>
+        /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file name</param>
+        /// <returns>dictionary withot duplicated file name</returns>
+        public static Dictionary<string, string> CheckDuplicateName(Dictionary<string, string> inFilesDictionary)
+        {
+            var list = inFilesDictionary.GroupBy(f => f.Value).Where(a => a.Count() > 1).ToList();
+            foreach (var group in list)
+            {
+                for (int i = 1; i < group.Count(); i++)
+                {
+                    string[] splitFileExtention = group.ElementAt(i).Value.Split('.');
+                    var (fileName, fileExtention) = new Tuple<string, string>( splitFileExtention[0], splitFileExtention[1]);
+                    inFilesDictionary[group.ElementAt(i).Key] = $"{fileName} - Copy ({i}).{fileExtention}";
+                }
+            }
+            return inFilesDictionary;
+        }
+        /// <summary>
         /// archive files in the list of paths inFilesList to the destination archivePath
         /// with using the file names in the archive from Path.GetFileName and add
         /// all of them in the root directory of the archive
@@ -22,7 +44,7 @@ namespace ArchivingServices
         /// <param name="archivePath">the zip file path to create</param>
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveFilesInRootFolder(List<string> inFilesList, string archivePath) =>
-            ArchiveFiles(inFilesList.ToDictionary(f => f, Path.GetFileName), archivePath);
+            ArchiveFiles(CheckDuplicateName(inFilesList.ToDictionary(f => f, Path.GetFileName)), archivePath);
         /// <summary>
         /// archive files in the list of paths inFilesList to the stream archive
         /// with using the file names in the archive from Path.GetFileName and add
@@ -30,8 +52,8 @@ namespace ArchivingServices
         /// </summary>
         /// <param name="inFilesList">the files path list to archive</param>
         /// <returns>MemoryStream</returns>
-        public static MemoryStream ArchiveFilesInRootFolder(List<string> inFilesList) =>
-             ArchiveFiles(inFilesList.ToDictionary(f => f, Path.GetFileName));
+        public static MemoryStream ArchiveFilesInRootFolder(List<string> inFilesList)=>
+             ArchiveFiles(CheckDuplicateName(inFilesList.ToDictionary(f => f, Path.GetFileName)));
         /// <summary>
         /// archive a single file to the destination archivePath
         /// with using the file name in the archive from Path.GetFileName and add
@@ -41,10 +63,10 @@ namespace ArchivingServices
         /// <param name="archivePath">the zip file path to create</param>
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveSingleFileInRootFolder(string inFile, string archivePath) =>
-            ArchiveFiles(new Dictionary<string, string>
+            ArchiveFiles(CheckDuplicateName(new Dictionary<string, string>
             {
                 {inFile, Path.GetFileName(inFile)}
-            }, archivePath);
+            }), archivePath);
         /// <summary>
         /// archive a single file to the destination stream archive
         /// with using the file name in the archive from Path.GetFileName and add
@@ -53,7 +75,7 @@ namespace ArchivingServices
         /// <param name="inFile">the file path to archive</param>
         /// <returns>MemoryStream</returns>
         public static MemoryStream ArchiveSingleFileInRootFolder(string inFile) =>
-            ArchiveFiles(new Dictionary<string, string> { { inFile, Path.GetFileName(inFile) } });
+            ArchiveFiles(CheckDuplicateName(new Dictionary<string, string> { { inFile, Path.GetFileName(inFile) } }));
         /// <summary>
         /// archive files in the list of objects ZipFileConfig which you
         /// can specify the file path on disk and the file path in the zip file
@@ -63,8 +85,8 @@ namespace ArchivingServices
         /// <param name="archivePath">the zip file path to create</param>
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveFiles(List<ZipFileConfig> zipConfigurationList, string archivePath) =>
-            ArchiveFiles(zipConfigurationList.ToDictionary(z => z.FilePathOnDisk,
-                z => z.FilePathInArchive), archivePath);
+            ArchiveFiles(CheckDuplicateName(zipConfigurationList.ToDictionary(z => z.FilePathOnDisk,
+                z => z.FilePathInArchive)), archivePath);
         /// <summary>
         /// archive files in the list of objects ZipFileConfig which you
         /// can specify stream archive and the file path in the zip file
@@ -73,7 +95,7 @@ namespace ArchivingServices
         /// <param name="zipConfigurationList">the list of objects ZipFileConfig to archive</param>
         /// <returns>MemoryStream</returns>
         public static MemoryStream ArchiveFiles(List<ZipFileConfig> zipConfigurationList) =>
-            ArchiveFiles(zipConfigurationList.ToDictionary(z => z.FilePathOnDisk, z => z.FilePathInArchive));
+            ArchiveFiles(CheckDuplicateName(zipConfigurationList.ToDictionary(z => z.FilePathOnDisk, z => z.FilePathInArchive)));
         /// <summary>
         /// archive file in the ZipFileConfig which you
         /// can specify the file path on disk and the file path in the zip file
@@ -83,8 +105,8 @@ namespace ArchivingServices
         /// <param name="archivePath">the zip file path to create</param>
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveSingleFile(ZipFileConfig zipFileConfiguration, string archivePath) =>
-            ArchiveFiles(new Dictionary<string, string>{
-                { zipFileConfiguration.FilePathOnDisk, zipFileConfiguration.FilePathInArchive } }
+            ArchiveFiles(CheckDuplicateName(new Dictionary<string, string>{
+                { zipFileConfiguration.FilePathOnDisk, zipFileConfiguration.FilePathInArchive } })
             , archivePath);
         /// <summary>
         /// archive file in the ZipFileConfig which you
@@ -94,7 +116,7 @@ namespace ArchivingServices
         /// <param name="zipFileConfiguration">the object ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static MemoryStream ArchiveSingleFile(ZipFileConfig zipFileConfiguration) =>
-            ArchiveFiles(new Dictionary<string, string> { { zipFileConfiguration.FilePathOnDisk, zipFileConfiguration.FilePathInArchive } });
+            ArchiveFiles(CheckDuplicateName(new Dictionary<string, string> { { zipFileConfiguration.FilePathOnDisk, zipFileConfiguration.FilePathInArchive } }));
         /// <summary>
         /// a simple function that wraps the functionality for
         /// zipping file dictionary into an archive with the key
@@ -174,7 +196,7 @@ namespace ArchivingServices
             {
                 {filePathOnDisk,  filePathInArchive}
             };
-            return ArchiveFiles(dic);
+            return ArchiveFiles(CheckDuplicateName(dic));
         }
         /// <summary>
         /// archive files in the list of ZipStreamConfig which you
@@ -216,7 +238,7 @@ namespace ArchivingServices
         /// <param name="zipConfiguration">the list of objects called ZipFileConfig to archive</param>
         /// <returns>Memory Stream</returns>
         public static MemoryStream ArchiveFile(ZipStreamConfig zipConfiguration) =>
-             ArchiveFilesStream(new Dictionary<string, Stream> {{ zipConfiguration.FilePathInArchive, zipConfiguration.FileStream }});
+             ArchiveFilesStream(new Dictionary<string, Stream> { { zipConfiguration.FilePathInArchive, zipConfiguration.FileStream } });
         /// <summary>
         /// archive file from filePathInArchive which you can
         /// can specify the file stream and the file path in the zip file
@@ -306,7 +328,7 @@ namespace ArchivingServices
         /// <param name="fileStream">the file stream to archive</param>
         /// <returns>Memory Stream</returns>
         public static async Task<MemoryStream> ArchiveFileAsync(string filePathInArchive, Stream fileStream) =>
-            await ArchiveFilesStreamAsync(new Dictionary<string, Stream> {{ filePathInArchive, fileStream } });
+            await ArchiveFilesStreamAsync(new Dictionary<string, Stream> { { filePathInArchive, fileStream } });
         /// <summary>
         /// a simple function that wraps the functionality for zipping file list into an archive
         /// </summary>
