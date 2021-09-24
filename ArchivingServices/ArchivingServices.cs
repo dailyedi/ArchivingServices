@@ -120,27 +120,78 @@ namespace ArchivingServices
             }
         }
         /// <summary>
+        /// a simple async function that wraps the functionality for
+        /// zipping file dictionary into an archive with the key
+        /// referring to the file path on disk
+        /// and the value referring to the file path in
+        /// the archive to be created
+        /// </summary>
+        /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
+        /// <param name="archivePath">the path to save the archived file to</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static async Task<bool> ArchiveFilesAsync(Dictionary<string, string> inFilesDictionary, string archivePath)
+        {
+            try
+            {
+                var result = await ArchiveFilesAsync(inFilesDictionary);
+                File.WriteAllBytes(archivePath, result.ToArray());
+                return File.Exists(archivePath);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
         /// a simple function that wraps the functionality for
         /// zipping file dictionary into MemoryStream
         /// </summary>
         /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
         /// <returns>memoryStream or null</returns>
-        public static MemoryStream ArchiveFiles(Dictionary<string, string> inFilesDictionary)
+        public static  MemoryStream ArchiveFiles(Dictionary<string, string> inFilesDictionary)
         {
             var memoryStream = new MemoryStream();
-            using (memoryStream)
-            {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                using (memoryStream)
                 {
-                    foreach (var kvp in inFilesDictionary)
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
-                        if (kvp.Value != null)
-                            archive.CreateEntryFromFile(kvp.Key, kvp.Value);
-                        else
-                            archive.CreateEntry(kvp.Key + "\\");
+                        foreach (var kvp in inFilesDictionary)
+                        {
+                            if (kvp.Value != null)
+                                archive.CreateEntryFromFile(kvp.Key, kvp.Value);
+                            else
+                                archive.CreateEntry(kvp.Key + "\\");
+                        }
                     }
                 }
-            }
+            
+            return memoryStream;
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for
+        /// zipping file dictionary into MemoryStream
+        /// </summary>
+        /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file path in the archive</param>
+        /// <returns>memoryStream or null</returns>
+        public static async Task<MemoryStream> ArchiveFilesAsync(Dictionary<string, string> inFilesDictionary)
+        {
+            var memoryStream = new MemoryStream();
+            await Task.Run(() => {
+                using (memoryStream)
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    {
+                        foreach (var kvp in inFilesDictionary)
+                        {
+                            if (kvp.Value != null)
+                                archive.CreateEntryFromFile(kvp.Key, kvp.Value);
+                            else
+                                archive.CreateEntry(kvp.Key + "\\");
+                        }
+                    }
+                }
+            });
+
             return memoryStream;
         }
         /// <summary>
@@ -366,19 +417,30 @@ namespace ArchivingServices
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
 
-
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory 
         /// </summary>
         /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
         /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
-        /// <returns>no return Just save archived directory on same path of directory</returns>
-        public static void ArchiveDirectory(string directoryPathOnDisk, bool allowEmptyNode = true)
+        /// <returns>returns boolean for indicating that archived directory saved or not</returns>
+        public static bool ArchiveDirectory(string directoryPathOnDisk, bool allowEmptyNode = true)
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
-            var archivedStream = ArchiveFiles(pathsResult);
-            File.WriteAllBytes(archivedPath, archivedStream.ToArray());
+            return ArchiveFiles(pathsResult,archivedPath);
+           
+        }
+        /// <summary>
+        /// a simple  async function that wraps the functionality for archiving a Directory 
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
+        /// <returns>returns boolean for indicating that archived directory saved or not</returns>
+        public static async Task<bool> ArchiveDirectoryAsync(string directoryPathOnDisk, bool allowEmptyNode = true)
+        {
+            var archivedPath = directoryPathOnDisk + ".zip";
+            var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
+            return await ArchiveFilesAsync(pathsResult,archivedPath);
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory 
@@ -390,6 +452,17 @@ namespace ArchivingServices
         {
             var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
             return ArchiveFiles(pathsResult);
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for archiving a Directory 
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
+        /// <returns>return archived directory as a MemoryStream Formate</returns>
+        public static async Task <MemoryStream> ArchiveDirectoryStreamAsync(string directoryPathOnDisk, bool allowEmptyNode = true)
+        {
+            var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
+            return await ArchiveFilesAsync(pathsResult);
         }
         /// <summary>
         /// a simple function that wraps the functionality for Getting Paths For All Files And Directories
@@ -418,13 +491,24 @@ namespace ArchivingServices
         /// a simple function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
         /// </summary>
         /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
-        /// <returns>no return Just save archived directory on same path of directory which Contains All files in Same Directory Ignoring Sub Directpries </returns>
-        public static void ArchiveDirectoryFlates(string directoryPathOnDisk)
+        /// <returns>returns boolean for indicating that archived directory saved or not which Contains All files in Same Directory Ignoring Sub Directpries </returns>
+        public static bool ArchiveDirectoryFlates(string directoryPathOnDisk)
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
-            var archivedStream = ArchiveFiles(pathsResult);
-            File.WriteAllBytes(archivedPath, archivedStream.ToArray());
+            return ArchiveFiles(pathsResult,archivedPath);
+           
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <returns>returns boolean for indicating that archived directory saved or not which Contains All files in Same Directory Ignoring Sub Directpries </returns>
+        public static async Task<bool> ArchiveDirectoryFlatesAsync(string directoryPathOnDisk)
+        {
+            var archivedPath = directoryPathOnDisk + ".zip";
+            var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
+            return await ArchiveFilesAsync(pathsResult,archivedPath);
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
@@ -435,6 +519,16 @@ namespace ArchivingServices
         {
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
             return ArchiveFiles(pathsResult);
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <returns> return archived directory As a MemoryStream which Contains All files in Same Directory Ignoring Sub Directpries </returns>
+        public static async Task<MemoryStream> ArchiveDirectoryFlatesStreamAsync(string directoryPathOnDisk)
+        {
+            var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
+            return await ArchiveFilesAsync(pathsResult);
         }
         /// <summary>
         /// a simple function that wraps the functionality for Getting Paths For All Files  
@@ -450,7 +544,7 @@ namespace ArchivingServices
         }
 
         //TODO: archive directory with more options (include/exclude files patterns, archive all in root directory, archive to, etc..)
-        
+
         /// <summary>
         /// a simple function that wraps the functionality for archiving files in a Directory for Specific Pattern  
         /// </summary>
@@ -458,13 +552,27 @@ namespace ArchivingServices
         /// <param name="searchWay">an Enum For Searshing Options Either RegEx or WildCard </param>
         /// <param name="pattern"> contains the pattern you want to filter With it</param>
         /// <param name="allowedFlates">a flag determines what do you want Either subfolders or Flats directory </param>
-        /// <returns>no return Just save archived directory on same path of directory</returns>
-        public static void ArchiveDirectoryWithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern,  bool allowedFlates = default)
+        /// <returns>returns boolean for indicating that archived directory saved or not</returns>
+        public static bool ArchiveDirectoryWithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern,  bool allowedFlates = default)
         {
             var archivePath = directoryPathOnDisk + ".zip";
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern,  allowedFlates);
-            var archivedStream = ArchiveFiles(pathsResult);
-            File.WriteAllBytes(archivePath, archivedStream.ToArray());
+            return ArchiveFiles(pathsResult,archivePath);
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for archiving files in a Directory for Specific Pattern  
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="searchWay">an Enum For Searshing Options Either RegEx or WildCard </param>
+        /// <param name="pattern"> contains the pattern you want to filter With it</param>
+        /// <param name="allowedFlates">a flag determines what do you want Either subfolders or Flats directory </param>
+        /// <returns>returns boolean for indicating that archived directory saved or not</returns>
+        public static async Task<bool> ArchiveDirectoryWithPatternAsync(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
+        {
+            var archivePath = directoryPathOnDisk + ".zip";
+            var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
+            return await ArchiveFilesAsync(pathsResult,archivePath);
+            
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving files in a Directory for Specific Pattern  
@@ -478,6 +586,19 @@ namespace ArchivingServices
         {
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
             return ArchiveFiles(pathsResult);
+        }
+        /// <summary>
+        /// a simple async function that wraps the functionality for archiving files in a Directory for Specific Pattern  
+        /// </summary>
+        /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
+        /// <param name="searchWay">an Enum For Searshing Options Either RegEx or WildCard </param>
+        /// <param name="pattern"> contains the pattern you want to filter With it</param>
+        /// <param name="allowedFlates">a flag determines what do you want Either subfolders or Flats directory </param>
+        /// <returns>return archived directory as a MemoryStream</returns>
+        public static async Task<MemoryStream> ArchiveDirectoryWithPatternStreamAsync(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
+        {
+            var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
+            return await ArchiveFilesAsync(pathsResult);
         }
         /// <summary>
         /// a simple function that wraps the functionality for Getting Paths of Files in a Directory for Specific Pattern  
