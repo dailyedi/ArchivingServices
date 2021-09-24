@@ -17,4 +17,8 @@
     <ProjectReference Include="..\ArchivingServices\ArchivingServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extract\" />
+  </ItemGroup>
+
 </Project>

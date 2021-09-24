@@ -6,15 +6,31 @@ using System.IO;
 using System.IO.Compression;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 
 namespace TestProject1
 {
     public class Tests
     {
-        
-        #region commented
 
+        #region commented
+        string pattern ,pathdir,extract,pathdirplates, extractplates,pathdirPattern, pathdirPattern1, pathdirPatternextract,pathdirPatternextract1;
+        Regex rgx;
+       [SetUp]
+       public void SetUp()
+        {
+            pathdir = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDir";
+            extract = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\Extract";
+            pathdirplates = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirPlates";
+            extractplates = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\ExtractPlates";
+            pathdirPattern = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirWithPattern";
+            pathdirPattern1 = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirWithPattern1";
+            pathdirPatternextract = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\pathdirPatternextract";
+            pathdirPatternextract1 = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\pathdirPatternextract1";
+            pattern ="file[0-9]{2}";
+        }
         #region ArchiveFilesInRootFolder
 
         [Test]
@@ -813,6 +829,7 @@ namespace TestProject1
 
         //#endregion
 
+
         #region ArchiveFilesStream
 
         [Test]
@@ -830,6 +847,92 @@ namespace TestProject1
 
 
         #endregion
+
+        #region TestingArchivingDirectory
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectory_whenCalled_SavedArchivedDirectory(bool allowedFlates)
+        {
+            ArchivingServicess.ArchiveDirectory(pathdir, allowedFlates);
+            ZipFile.ExtractToDirectory(pathdir + ".zip", extract,overwriteFiles:true);
+            var result = Directory.GetFiles(extract);
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("testFile.txt"));
+        }
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectoryStream_whenCalled_ReturnStream(bool allowedFlates)
+        {
+           var result = ArchivingServicess.ArchiveDirectoryStream(pathdir, allowedFlates);
+            MemoryStream memoryStream = new MemoryStream(result.ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+        }
+
+        [Test]
+        public void ArchiveDirectoryFlates_whenCalled_SavedArchivedDirectory()
+        {
+            ArchivingServicess.ArchiveDirectoryFlates(pathdirplates);
+            ZipFile.ExtractToDirectory(pathdirplates + ".zip", extractplates, overwriteFiles: true);
+            var result = Directory.GetFiles(extractplates);
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("testFile.txt"));
+        }
+        [Test]
+        public void ArchiveDirectoryFlatesStream_whenCalled_ReturnStream()
+        {
+            var result = ArchivingServicess.ArchiveDirectoryFlatesStream(pathdirplates);
+            MemoryStream memoryStream = new MemoryStream(result.ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+        }
+
+        #endregion
+
+        #region TestingArchivingDirectorywithPattern
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectoryWithPattern_whenCalled_SavedArchivedDirectoryWithRegEx(bool allowedflates)
+        {
+            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern1, SearchPattern.RegEx, pattern, allowedflates);
+            ZipFile.ExtractToDirectory(pathdirPattern1 + ".zip", pathdirPatternextract, overwriteFiles: true);
+            var result = Directory.GetFiles(pathdirPatternextract);
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("file54.txt"));
+        }
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectoryWithPattern_whenCalled_SavedArchivedDirectoryWithWildCard(bool allowedflates)
+        {
+            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern, SearchPattern.WildCard, "?test.*", allowedflates);
+            ZipFile.ExtractToDirectory(pathdirPattern + ".zip", pathdirPatternextract1, overwriteFiles: true);
+            var result = Directory.GetFiles(pathdirPatternextract1);
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("dtest.txt"));
+        }
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowedflates)
+        {
+            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.RegEx, pattern,allowedflates);
+            MemoryStream memoryStream = new MemoryStream(result.ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("file56.txt"));
+        }
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithWildCard(bool allowedflates)
+        {
+            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.WildCard,"?test.*", allowedflates);
+            MemoryStream memoryStream = new MemoryStream(result.ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("ptest.pptx"));
+        }
+
+        #endregion
+
         #endregion
     }
 }
