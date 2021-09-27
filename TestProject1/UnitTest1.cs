@@ -889,6 +889,10 @@ namespace TestProject1
             ZipArchive Archive = new ZipArchive(memoryStream);
             Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
         }
+
+
+        #endregion
+        #region TestingArchivingDirectoryFlats
         [Test]
         public void ArchiveDirectoryFlates_whenCalled_SavedArchivedDirectory()
         {
@@ -921,9 +925,7 @@ namespace TestProject1
             ZipArchive Archive = new ZipArchive(memoryStream);
             Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
         }
-
         #endregion
-
         #region TestingArchivingDirectorywithPattern
         [Test]
         [TestCase(true)]

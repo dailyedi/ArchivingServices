@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArchivingServices.Structure;
 using System.Text.RegularExpressions;
+using System;
 
 namespace ArchivingServices
 {
@@ -14,6 +15,25 @@ namespace ArchivingServices
     /// </summary>
     public static class ArchivingServicess
     {
+        /// <summary>
+        /// rename duplicated file name
+        /// </summary>
+        /// <param name="inFilesDictionary">a dictionary where the key is the file path on disk and the value is the file name</param>
+        /// <returns>dictionary withot duplicated file name</returns>
+        public static Dictionary<string, string> CheckDuplicateName(Dictionary<string, string> inFilesDictionary)
+        {
+            var list = inFilesDictionary.GroupBy(f => f.Value).Where(a => a.Count() > 1).ToList();
+            foreach (var group in list)
+            {
+                for (int i = 1; i < group.Count(); i++)
+                {
+                    string[] splitFileExtention = group.ElementAt(i).Value.Split('.');
+                    var (fileName, fileExtention) = new Tuple<string, string>(splitFileExtention[0], splitFileExtention[1]);
+                    inFilesDictionary[group.ElementAt(i).Key] = $"{fileName} - Copy ({i}).{fileExtention}";
+                }
+            }
+            return inFilesDictionary;
+        }
         /// <summary>
         /// archive files in the list of paths inFilesList to the destination archivePath
         /// with using the file names in the archive from Path.GetFileName and add
@@ -191,7 +211,6 @@ namespace ArchivingServices
                     }
                 }
             });
-
             return memoryStream;
         }
         /// <summary>
@@ -496,7 +515,7 @@ namespace ArchivingServices
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
-            return ArchiveFiles(pathsResult,archivedPath);
+            return ArchiveFiles(CheckDuplicateName(pathsResult), archivedPath);
            
         }
         /// <summary>
@@ -508,7 +527,7 @@ namespace ArchivingServices
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
-            return await ArchiveFilesAsync(pathsResult,archivedPath);
+            return await ArchiveFilesAsync(CheckDuplicateName(pathsResult), archivedPath);
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
@@ -518,7 +537,7 @@ namespace ArchivingServices
         public static MemoryStream ArchiveDirectoryFlatesStream(string directoryPathOnDisk)
         {
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
-            return ArchiveFiles(pathsResult);
+            return ArchiveFiles(CheckDuplicateName(pathsResult));
         }
         /// <summary>
         /// a simple async function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
@@ -528,7 +547,7 @@ namespace ArchivingServices
         public static async Task<MemoryStream> ArchiveDirectoryFlatesStreamAsync(string directoryPathOnDisk)
         {
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
-            return await ArchiveFilesAsync(pathsResult);
+            return await ArchiveFilesAsync(CheckDuplicateName(pathsResult));
         }
         /// <summary>
         /// a simple function that wraps the functionality for Getting Paths For All Files  
@@ -557,7 +576,11 @@ namespace ArchivingServices
         {
             var archivePath = directoryPathOnDisk + ".zip";
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern,  allowedFlates);
-            return ArchiveFiles(pathsResult,archivePath);
+            if(allowedFlates)
+                return ArchiveFiles(CheckDuplicateName( pathsResult),archivePath);
+            else
+                return ArchiveFiles(pathsResult, archivePath);
+
         }
         /// <summary>
         /// a simple async function that wraps the functionality for archiving files in a Directory for Specific Pattern  
@@ -571,8 +594,11 @@ namespace ArchivingServices
         {
             var archivePath = directoryPathOnDisk + ".zip";
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
-            return await ArchiveFilesAsync(pathsResult,archivePath);
-            
+            if (allowedFlates)
+                return await ArchiveFilesAsync(CheckDuplicateName(pathsResult), archivePath);
+            else
+                return await ArchiveFilesAsync(pathsResult, archivePath);
+
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving files in a Directory for Specific Pattern  
@@ -585,7 +611,10 @@ namespace ArchivingServices
         public static MemoryStream ArchiveDirectoryWithPatternStream(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
         {
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
-            return ArchiveFiles(pathsResult);
+            if(allowedFlates)
+                return ArchiveFiles(CheckDuplicateName( pathsResult));
+            else
+                return ArchiveFiles(pathsResult);
         }
         /// <summary>
         /// a simple async function that wraps the functionality for archiving files in a Directory for Specific Pattern  
@@ -598,7 +627,10 @@ namespace ArchivingServices
         public static async Task<MemoryStream> ArchiveDirectoryWithPatternStreamAsync(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
         {
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
-            return await ArchiveFilesAsync(pathsResult);
+            if (allowedFlates)
+                return await ArchiveFilesAsync(CheckDuplicateName(pathsResult));
+            else
+                return await ArchiveFilesAsync(pathsResult);
         }
         /// <summary>
         /// a simple function that wraps the functionality for Getting Paths of Files in a Directory for Specific Pattern  
