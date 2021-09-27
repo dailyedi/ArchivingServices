@@ -957,7 +957,6 @@ namespace TestProject1
         }
 
         #endregion
-
         #region AddFilesToExistingArchive
         [Test]
         public  void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
@@ -969,7 +968,7 @@ namespace TestProject1
             bool result = false;
             foreach (var item in allFiles)
             {
-               result = item.Contains("hello.txt");
+               result = item.EndsWith("hello.txt");
                 if (result)
                     break;
             }
