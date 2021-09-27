@@ -22,22 +22,22 @@ namespace TestProject1
         [SetUp]
         public void SetUp()
         {
-            pathdir = @"Testing\TestDir";
-            extract = @"Testing\Extract";
-            pathdirplates = @"Testing\TestDirPlates";
-            extractplates = @"Testing\ExtractPlates";
-            pathdirPattern = @"Testing\TestDirWithPattern";
-            pathdirPattern1 = @"Testing\TestDirWithPattern1";
-            pathdirPatternextract = @"Testing\pathdirPatternextract";
-            pathdirPatternextract1 = @"Testing\pathdirPatternextract1";
+            pathdir = @"..\..\..\..\Testing\TestDir";
+            extract = @"..\..\..\..\Testing\Extract";
+            pathdirplates = @"..\..\..\..\Testing\TestDirPlates";
+            extractplates = @"..\..\..\..\Testing\ExtractPlates";
+            pathdirPattern = @"..\..\..\..\Testing\TestDirWithPattern";
+            pathdirPattern1 = @"..\..\..\..\Testing\TestDirWithPattern1";
+            pathdirPatternextract = @"..\..\..\..\Testing\pathdirPatternextract";
+            pathdirPatternextract1 = @"..\..\..\..\Testing\pathdirPatternextract1";
             pattern = "file[0-9]{2}";
-            pathZipFile = @"testing\test.zip";
+            pathZipFile = @"..\..\..\..\Testing\test.zip";
             filePaths = new List<string>()
             {
-                @"Testing\hello.txt",
-                @"Testing\test.txt"
+                @"..\..\..\..\Testing\hello.txt",
+                @"..\..\..\..\Testing\test.txt"
             };
-            ExtractPathFiles = @"Testing\extractedPathFiles";
+            ExtractPathFiles = @"..\..\..\..\Testing\extractedPathFiles";
         }
         #region ArchiveFilesInRootFolder
 
