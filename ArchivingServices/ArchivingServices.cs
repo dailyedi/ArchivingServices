@@ -681,6 +681,27 @@ namespace ArchivingServices
         }
 
         //TODO: add files to existing archive
+        public static void AddfilesToExistArchive(string archiveFile, List<string> filesToAdd)
+        {
+            using (FileStream fs = File.Open(archiveFile, FileMode.Open))
+            {
+                using (var archive = new ZipArchive(fs, ZipArchiveMode.Update, true))
+                {
+                    for (int i = 0; i < filesToAdd.Count; i++)
+                    {
+                        int count = 1;
+                        string newFullPath = filesToAdd[i];
+                        while (archive.Entries.Any(entry => entry.Name == Path.GetFileName(newFullPath)))
+                        {
+                            string tempFileName = string.Format("{0} - Copy ({1})", Path.GetFileNameWithoutExtension(filesToAdd[i]), count++);
+                            newFullPath = Path.Combine(Path.GetDirectoryName(filesToAdd[i]), tempFileName + Path.GetExtension(filesToAdd[i]));
+                        }
+                        archive.CreateEntryFromFile(filesToAdd[i], Path.GetFileName(newFullPath));
+                    }
+                }
+            }
+        }
+
         //TODO: get files metadata from archive
         //TODO: extract particular file from archive
         //TODO: get a file stream from archive
