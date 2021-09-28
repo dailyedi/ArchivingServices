@@ -16,7 +16,9 @@ namespace TestProject1
     {
 
         
-        string pattern,pathZipFile,ExtractPathFiles ,pathdir, extract, pathdirplates, extractplates, pathdirPattern, pathdirPattern1, pathdirPatternextract, pathdirPatternextract1;
+        string pattern,pathZipFile,ExtractPathFiles ,pathdir,
+            extract, pathdirplates, extractplates, pathdirPattern,
+            pathdirPattern1, pathdirPatternextract, pathdirPatternextract1;
         Regex rgx;
         List<string> filePaths = new List<string>();
         [SetUp]
