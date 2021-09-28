@@ -713,19 +713,19 @@ namespace ArchivingServices
         /// </summary>
         /// <param name="ArchiveFilesPaths"></param>
         /// <returns>IEnumerable<(string, FileInfo)></returns>
-        public static IEnumerable<FileMetadata> GetFilesMetadataFromArchive(string ArchiveFilesPaths = null)
+        public static IEnumerable<(Stream stream, FileMetadata fileMetadata)> GetFilesMetadataFromArchive(string ArchiveFilesPaths = null)
         {
             if (ArchiveFilesPaths != null)
             {
                 foreach (var entry in ZipFile.Open(ArchiveFilesPaths, ZipArchiveMode.Read).Entries)
                 {
-                    yield return new FileMetadata()
+                    yield return (entry.Open(), new FileMetadata()
                     {
                         CompressedLength = entry.CompressedLength,
                         FullName = entry.FullName,
                         Length = entry.Length,
                         LastWriteTime = entry.LastWriteTime.DateTime
-                    };
+                    });
                 }
             }
             else
@@ -735,19 +735,6 @@ namespace ArchivingServices
 
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="ArchiveFilePath"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public static Stream GetFileStreamFromArchive(string ArchiveFilePath, string fileName)
-        {
-            ZipArchive _zipFile = ZipFile.Open(ArchiveFilePath, ZipArchiveMode.Update);
-
-            ZipArchiveEntry entry = _zipFile.GetEntry(fileName);
-
-            return entry.Open();
-        }
 
 
         //TODO: get files metadata from archive//
