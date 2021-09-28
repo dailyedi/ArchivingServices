@@ -626,14 +626,24 @@ namespace TestProject1
         #region Stream
 
         #region ArchiveFilesInRootFolder
+
+        string testPath = "../../../TestFiles/";
+        string resultPath = "../../../ResultFiles/";
+
+        string testFile1Name = "testFile1.txt";
+        string testFile2Name = "testFile2.txt";
+
+        string resultFile1Name = "resultFile1.txt";
+        string resultFile2Name = "resultFile2.txt";
+
         [Test]
         public void Test_ArchiveFilesInRootFolder_Memorystream()
         {
-            List<string> y = new List<string>() { "D:/New folder{}/test.txt", "D:/test.txt" };
-            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(y).ToArray());
+            List<string> testFilesList = new List<string>() { testPath + testFile1Name, testPath + testFile2Name };
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveFilesInRootFolder(testFilesList).ToArray());
             ZipArchive Archive1 = new ZipArchive(memoryStream1);
-            Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
-            Assert.AreEqual("test - Copy (1).txt", Archive1.Entries[1].FullName);
+            Assert.AreEqual(testFile1Name, Archive1.Entries[0].FullName);
+            Assert.AreEqual(testFile2Name, Archive1.Entries[1].FullName);
         }
         #endregion
 
@@ -641,7 +651,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveSingleFileInRootFolder_MemoryStream()
         {
-            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveSingleFileInRootFolder("D:/New folder{}/test.txt").ToArray());
+            MemoryStream memoryStream1 = new MemoryStream(ArchivingServicess.ArchiveSingleFileInRootFolder(testPath + testFile1Name).ToArray());
             ZipArchive Archive1 = new ZipArchive(memoryStream1);
             Assert.AreEqual("test.txt", Archive1.Entries[0].FullName);
         }
