@@ -16,32 +16,38 @@ namespace TestProject1
     {
 
         
-        string pattern,pathZipFile,ExtractPathFiles ,pathdir, extract, 
+        string patternRegx,  patternWild, pathZipFile,ExtractPathFiles ,pathdir, extract, 
             pathdirFlates, extractFlates, pathdirPattern, pathdirPattern1, 
             pathdirPatternextract, pathdirPatternextract1,
-            subFile;
+            subFile,testFile, fileTestPatterRegx, fileTestPatterRegx1, fileTestPatterWild, fileTestPatterWild1, fileTestPatternWild;
         Regex rgx;
         List<string> filePaths = new List<string>();
         [SetUp]
         public void SetUp()
         {
-            pathdir = @"..\..\..\..\Testing\TestFiles\TestDir\";
-            extract = @"..\..\..\..\Testing\ResultFiles\Extract\";
+            pathdir = @"..\..\..\..\Testing\TestFiles\TestDir";
+            extract = @"..\..\..\..\Testing\ResultFiles\Extract";
             pathdirFlates = @"..\..\..\..\Testing\TestFiles\TestDirFlates";
-            extractFlates = @"..\..\..\..\Testing\ResultFiles\ExtractFlates\";
-            pathdirPattern = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern\";
-            pathdirPattern1 = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern1\";
-            pathdirPatternextract = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract\";
-            pathdirPatternextract1 = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract1\";
+            extractFlates = @"..\..\..\..\Testing\ResultFiles\ExtractFlates";
+            pathdirPattern = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern";
+            pathdirPattern1 = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern1";
+            pathdirPatternextract = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract";
+            pathdirPatternextract1 = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract1";
             subFile = "SubTestFile1.txt";
-            pattern = "file[0-9]{2}";
+            testFile = "testFile.txt";
+            patternRegx = "file[0-9]{2}";
+            patternWild = "?test.*";
+            fileTestPatterRegx = "file54.txt";
+            fileTestPatterRegx1 = "file56.txt";
+            fileTestPatternWild = "dtest.txt";
+            fileTestPatterWild = "ptest.pptx";
             pathZipFile = @"..\..\..\..\Testing\TestFiles\test.zip";
             filePaths = new List<string>()
             {
-                @"..\..\..\..\Testing\TestFiles\hello.txt",
-                @"..\..\..\..\Testing\TestFiles\test.txt"
+                @"..\..\..\..\Testing\TestFiles\"+subFile,
+                @"..\..\..\..\Testing\TestFiles\"+testFile
             };
-            ExtractPathFiles = @"..\..\..\..\Testing\ResultFiles\extractedPathFiles\";
+            ExtractPathFiles = @"..\..\..\..\Testing\ResultFiles\extractedPathFiles";
         }
         #region ArchiveFilesInRootFolder
 
@@ -813,7 +819,7 @@ namespace TestProject1
             ArchivingServicess.ArchiveDirectory(pathdir, allowedFlates);
             ZipFile.ExtractToDirectory(pathdir + ".zip", extract, overwriteFiles: true);
             var result = Directory.GetFiles(extract);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("testFile.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(testFile));
         }
         [Test]
         [TestCase(true)]
@@ -823,7 +829,7 @@ namespace TestProject1
             await ArchivingServicess.ArchiveDirectoryAsync(pathdir, allowedFlates);
             ZipFile.ExtractToDirectory(pathdir + ".zip", extract, overwriteFiles: true);
             var result = Directory.GetFiles(extract);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("testFile.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(testFile));
         }
         [Test]
         [TestCase(true)]
@@ -833,7 +839,7 @@ namespace TestProject1
             var result = ArchivingServicess.ArchiveDirectoryStream(pathdir, allowedFlates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(testFile));
         }
         [Test]
         [TestCase(true)]
@@ -843,7 +849,7 @@ namespace TestProject1
             var result = await ArchivingServicess.ArchiveDirectoryStreamAsync(pathdir, allowedFlates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(testFile));
         }
 
 
@@ -863,7 +869,7 @@ namespace TestProject1
             await ArchivingServicess.ArchiveDirectoryFlatesAsync(pathdirFlates);
             ZipFile.ExtractToDirectory(pathdirFlates + ".zip", extractFlates, overwriteFiles: true);
             var result = Directory.GetFiles(extractFlates);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("testFile.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(subFile));
         }
         [Test]
         public void ArchiveDirectoryFlatesStream_whenCalled_ReturnStream()
@@ -871,7 +877,7 @@ namespace TestProject1
             var result = ArchivingServicess.ArchiveDirectoryFlatesStream(pathdirFlates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(testFile));
         }
         [Test]
         public async Task ArchiveDirectoryFlatesStreamAsync_whenCalled_ReturnStream()
@@ -879,7 +885,7 @@ namespace TestProject1
             var result = await ArchivingServicess.ArchiveDirectoryFlatesStreamAsync(pathdirFlates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("testFile.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(testFile));
         }
         #endregion
         #region TestingArchivingDirectorywithPattern
@@ -888,80 +894,80 @@ namespace TestProject1
         [TestCase(false)]
         public void ArchiveDirectoryWithPattern_whenCalled_SavedArchivedDirectoryWithRegEx(bool allowedflates)
         {
-            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern1, SearchPattern.RegEx, pattern, allowedflates);
+            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern1, SearchPattern.RegEx, patternRegx, allowedflates);
             ZipFile.ExtractToDirectory(pathdirPattern1 + ".zip", pathdirPatternextract, overwriteFiles: true);
             var result = Directory.GetFiles(pathdirPatternextract);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("file54.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(fileTestPatterRegx));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task ArchiveDirectoryWithPatternAsync_whenCalled_SavedArchivedDirectoryWithRegEx(bool allowedflates)
         {
-            await ArchivingServicess.ArchiveDirectoryWithPatternAsync(pathdirPattern1, SearchPattern.RegEx, pattern, allowedflates);
+            await ArchivingServicess.ArchiveDirectoryWithPatternAsync(pathdirPattern1, SearchPattern.RegEx, patternRegx, allowedflates);
             ZipFile.ExtractToDirectory(pathdirPattern1 + ".zip", pathdirPatternextract, overwriteFiles: true);
             var result = Directory.GetFiles(pathdirPatternextract);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("file54.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(fileTestPatterRegx));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void ArchiveDirectoryWithPattern_whenCalled_SavedArchivedDirectoryWithWildCard(bool allowedflates)
         {
-            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern, SearchPattern.WildCard, "?test.*", allowedflates);
+            ArchivingServicess.ArchiveDirectoryWithPattern(pathdirPattern, SearchPattern.WildCard, patternWild, allowedflates);
             ZipFile.ExtractToDirectory(pathdirPattern + ".zip", pathdirPatternextract1, overwriteFiles: true);
             var result = Directory.GetFiles(pathdirPatternextract1);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("dtest.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(fileTestPatternWild));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task ArchiveDirectoryWithPatternAsync_whenCalled_SavedArchivedDirectoryWithWildCard(bool allowedflates)
         {
-            await ArchivingServicess.ArchiveDirectoryWithPatternAsync(pathdirPattern, SearchPattern.WildCard, "?test.*", allowedflates);
+            await ArchivingServicess.ArchiveDirectoryWithPatternAsync(pathdirPattern, SearchPattern.WildCard, patternWild, allowedflates);
             ZipFile.ExtractToDirectory(pathdirPattern + ".zip", pathdirPatternextract1, overwriteFiles: true);
             var result = Directory.GetFiles(pathdirPatternextract1);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo("dtest.txt"));
+            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(fileTestPatternWild));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowedflates)
         {
-            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.RegEx, pattern, allowedflates);
+            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.RegEx, patternRegx, allowedflates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("file56.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(fileTestPatterRegx1));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithRegx(bool allowedflates)
         {
-            var result = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(pathdirPattern1, SearchPattern.RegEx, pattern, allowedflates);
+            var result = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(pathdirPattern1, SearchPattern.RegEx, patternRegx, allowedflates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("file56.txt"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(fileTestPatterRegx1));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithWildCard(bool allowedflates)
         {
-            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.WildCard, "?test.*", allowedflates);
+            var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathdirPattern1, SearchPattern.WildCard, patternWild, allowedflates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("ptest.pptx"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(fileTestPatterWild));
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithWildCard(bool allowedflates)
         {
-            var result = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(pathdirPattern1, SearchPattern.WildCard, "?test.*", allowedflates);
+            var result = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(pathdirPattern1, SearchPattern.WildCard, patternWild, allowedflates);
             MemoryStream memoryStream = new MemoryStream(result.ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
-            Assert.That(Archive.Entries[0].FullName, Is.EqualTo("ptest.pptx"));
+            Assert.That(Archive.Entries[0].FullName, Is.EqualTo(fileTestPatterWild));
         }
 
         #endregion
@@ -976,7 +982,7 @@ namespace TestProject1
             bool result = false;
             foreach (var item in allFiles)
             {
-               result = item.EndsWith("hello.txt");
+               result = item.EndsWith(testFile);
                 if (result)
                     break;
             }
