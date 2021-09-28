@@ -731,7 +731,45 @@ namespace TestProject1
         }
         #endregion
 
-    
+        #region ExtractArchive
+
+        [Test]
+        public void Test_Extract_Archive() 
+        {
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractArchive("D:/ArchiveFilesInRootFolder_true_1.zip").ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+            Assert.AreEqual("test - Copy (1).txt", Archive.Entries[1].FullName);
+        }
+
+
+        #endregion
+
+        #region ExtractParticularFileFromArchive
+
+        [Test]
+        public void Test_Extract_Particular_File()
+        {
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractParticularFile("D:/ArchiveFilesInRootFolder_true_1.zip", "test.txt").ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+            Assert.AreEqual("test.txt", Archive.Entries[0].FullName);
+        }
+
+
+        #endregion
+
+        #region Extract_Archive_Flat_Directory
+        [Test]
+        public void Test_Extract_Archive_Flat_Directory()
+        {
+            MemoryStream memoryStream = new MemoryStream(ArchivingServicess.extractArchiveFlatDirectory("D:/ArchiveFilesInRootFolder_true_1.zip").ToArray());
+            ZipArchive Archive = new ZipArchive(memoryStream);
+
+            Assert.AreEqual("test - Copy (1).txt", Archive.Entries[1].Name);
+            Assert.AreEqual("test.txt", Archive.Entries[0].Name);
+
+        } 
+        #endregion
         #endregion
     }
 }
