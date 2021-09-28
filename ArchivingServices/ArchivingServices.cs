@@ -737,7 +737,7 @@ namespace ArchivingServices
 
 
 
-        //TODO: get files metadata from archive//
+        //TODO: get files metadata from archive
         //TODO: extract particular file from archive
         //TODO: get a file stream from archive
         //TODO: get all files metadata and streams from archive

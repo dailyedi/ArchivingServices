@@ -16,28 +16,6 @@ namespace TestProject1
 {
     public class Tests
     {
-        #region helpers
-        FileMetadata ReturnSingleFileInfo(ZipArchive archive, string entryName)
-        {
-            ZipArchiveEntry entry = archive.GetEntry(entryName);
-            return new FileMetadata()
-            {
-                CompressedLength = entry.CompressedLength,
-                FullName = entry.FullName,
-                Length = entry.Length,
-                LastWriteTime = entry.LastWriteTime.DateTime
-            };
-        }
-        Stream ReturnSingleFileStream(ZipArchive archive, string entryName)
-        {
-            ZipArchiveEntry entry = archive.GetEntry(entryName);
-            Stream stream = new MemoryStream();
-            entry.Open().CopyTo(stream);
-            return stream;
-
-        }
-        #endregion
-
         string pattern, pathZipFile, ExtractPathFiles, pathdir, extract, pathdirplates, extractplates, pathdirPattern, pathdirPattern1, pathdirPatternextract, pathdirPatternextract1;
         Regex rgx;
         List<string> filePaths = new List<string>();
