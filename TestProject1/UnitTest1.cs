@@ -16,20 +16,28 @@ namespace TestProject1
     {
 
         
-        string pattern, pathdir, extract, pathdirplates, extractplates, pathdirPattern, pathdirPattern1, pathdirPatternextract, pathdirPatternextract1;
+        string pattern,pathZipFile,ExtractPathFiles ,pathdir, extract, pathdirplates, extractplates, pathdirPattern, pathdirPattern1, pathdirPatternextract, pathdirPatternextract1;
         Regex rgx;
+        List<string> filePaths = new List<string>();
         [SetUp]
         public void SetUp()
         {
-            pathdir = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDir";
-            extract = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\Extract";
-            pathdirplates = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirPlates";
-            extractplates = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\ExtractPlates";
-            pathdirPattern = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirWithPattern";
-            pathdirPattern1 = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\TestDirWithPattern1";
-            pathdirPatternextract = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\pathdirPatternextract";
-            pathdirPatternextract1 = @"C:\Users\Mohamed_Reda\source\repos\ArchivingServices\TestProject1\Testing\pathdirPatternextract1";
+            pathdir = @"..\..\..\..\Testing\TestDir";
+            extract = @"..\..\..\..\Testing\Extract";
+            pathdirplates = @"..\..\..\..\Testing\TestDirPlates";
+            extractplates = @"..\..\..\..\Testing\ExtractPlates";
+            pathdirPattern = @"..\..\..\..\Testing\TestDirWithPattern";
+            pathdirPattern1 = @"..\..\..\..\Testing\TestDirWithPattern1";
+            pathdirPatternextract = @"..\..\..\..\Testing\pathdirPatternextract";
+            pathdirPatternextract1 = @"..\..\..\..\Testing\pathdirPatternextract1";
             pattern = "file[0-9]{2}";
+            pathZipFile = @"..\..\..\..\Testing\test.zip";
+            filePaths = new List<string>()
+            {
+                @"..\..\..\..\Testing\hello.txt",
+                @"..\..\..\..\Testing\test.txt"
+            };
+            ExtractPathFiles = @"..\..\..\..\Testing\extractedPathFiles";
         }
         #region ArchiveFilesInRootFolder
 
@@ -958,6 +966,24 @@ namespace TestProject1
             Assert.That(Archive.Entries[0].FullName, Is.EqualTo("ptest.pptx"));
         }
 
+        #endregion
+        #region AddFilesToExistingArchive
+        [Test]
+        public  void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
+        {
+            var d= Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            ArchivingServicess.AddfilesToExistArchive(pathZipFile, filePaths);
+            ZipFile.ExtractToDirectory(pathZipFile, ExtractPathFiles, overwriteFiles: true);
+            var allFiles = Directory.GetFiles(ExtractPathFiles);
+            bool result = false;
+            foreach (var item in allFiles)
+            {
+               result = item.EndsWith("hello.txt");
+                if (result)
+                    break;
+            }
+            Assert.That(result, Is.True);
+        }
         #endregion
 
         #endregion
