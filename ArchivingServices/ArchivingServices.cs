@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.IO.Compression;
-using System.IO;
+﻿using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using ArchivingServices.Structure;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System;
-using System.Text;
+using System.IO;
+using System.Collections.Generic;
 
 namespace ArchivingServices
 {
@@ -30,7 +29,7 @@ namespace ArchivingServices
                 for (int i = 1; i < group.Count(); i++)
                 {
                     string[] splitFileExtention = group.ElementAt(i).Value.Split('.');
-                    var (fileName, fileExtention) = new Tuple<string, string>( splitFileExtention[0], splitFileExtention[1]);
+                    var (fileName, fileExtention) = new Tuple<string, string>(splitFileExtention[0], splitFileExtention[1]);
                     inFilesDictionary[group.ElementAt(i).Key] = $"{fileName} - Copy ({i}).{fileExtention}";
                 }
             }
@@ -53,7 +52,7 @@ namespace ArchivingServices
         /// </summary>
         /// <param name="inFilesList">the files path list to archive</param>
         /// <returns>MemoryStream</returns>
-        public static MemoryStream ArchiveFilesInRootFolder(List<string> inFilesList)=>
+        public static MemoryStream ArchiveFilesInRootFolder(List<string> inFilesList) =>
              ArchiveFiles(CheckDuplicateName(inFilesList.ToDictionary(f => f, Path.GetFileName)));
         /// <summary>
         /// archive a single file to the destination archivePath
@@ -449,6 +448,154 @@ namespace ArchivingServices
             }
             return ArchiveFiles(dic);
         }
+        /// <summary>
+        /// a simple function that extract archive
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <param name="extractPath">the extract zip file path</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static bool ExtractArchive(string zipPath, string extractPath)
+        {
+            try
+            {
+                MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
+                ZipArchive Archive = new ZipArchive(memoryStream);
+                Archive.ExtractToDirectory(extractPath);
+                return File.Exists($"{extractPath}/{Archive.Entries[0].FullName}");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract archive
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <returns>memorystream</returns>
+        public static MemoryStream ExtractArchive(string zipPath)
+        {
+            MemoryStream ms = new MemoryStream();
+            using (FileStream file = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
+                file.CopyTo(ms);
+            return ms;
+        }
+        /// <summary>
+        /// a simple function that extract particular file from archive
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <param name="extractPath">the extract zip file path</param>
+        /// <param name="particularPath">particular path from archive</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static bool ExtractParticularFile(string zipPath, string extractPath, string particularPath)
+        {
+            try
+            {
+                MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
+                ZipArchive Archive = new ZipArchive(memoryStream);
+
+                foreach (ZipArchiveEntry entry in Archive.Entries)
+                {
+                    if (entry.FullName == particularPath)
+                    {
+                        entry.ExtractToFile(Path.Combine(extractPath, particularPath));
+                    }
+                }
+                return File.Exists($"{extractPath}/{Archive.Entries[0].FullName}");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract particular file from archive
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <param name="particularPath">particular path from archive</param>
+        /// <returns>memorystream</returns>
+        public static MemoryStream ExtractParticularFile(string zipPath, string particularPath)
+        {
+            MemoryStream extractData = new MemoryStream(ExtractArchive(zipPath).ToArray());
+            ZipArchive unZipArchive = new ZipArchive(extractData);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var Archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (var item in unZipArchive.Entries)
+                    {
+                        if (item.FullName == particularPath)
+                        {
+                            Archive.CreateEntry(particularPath);
+                        }
+                    }
+                }
+                return memoryStream;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract archive to flat diractory
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <param name="extractPath">the extract zip file path</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static bool extractArchiveFlatDirectory(string zipPath, string extractPath) 
+        {
+            try
+            {
+                MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
+                ZipArchive Archive = new ZipArchive(memoryStream);
+
+                foreach (ZipArchiveEntry entry in Archive.Entries)
+                {
+                    if (entry.Name != "")
+                    {
+                        entry.ExtractToFile(Path.Combine(extractPath, entry.Name));
+                    }
+                }
+                return File.Exists(extractPath);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract archive to flat diractory
+        /// </summary>
+        /// <param name="zipPath">the archive path on disk </param>
+        /// <returns>memorystream</returns>
+        public static MemoryStream extractArchiveFlatDirectory(string zipPath)
+        {
+
+            MemoryStream extractData = new MemoryStream(ExtractArchive(zipPath).ToArray());
+            ZipArchive unZipArchive = new ZipArchive(extractData);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var Archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (var item in unZipArchive.Entries)
+                    {
+                        if (item.FullName != "")
+                        {
+                            Archive.CreateEntry(item.Name);
+                        }
+                    }
+                }
+                return memoryStream;
+            }
+        }
+
+
+
+
+        //TODO: extract archive to directory
+        //TODO: extract particular file from archive
+        //TODO: extract archive as flat directory
+
+        //TODO: get a file stream from archive
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
 
@@ -696,11 +843,11 @@ namespace ArchivingServices
                     for (int i = 0; i < filesToBeAdd.Count; i++)
                     {
                         int count = 1;
-                        string newFullPath = filesToBeAdd[i];
+                        string newFullPath = Path.GetFileName(filesToBeAdd[i]);
                         while (archive.Entries.Any(entry => entry.Name == Path.GetFileName(newFullPath)))
                         {
                             string tempFileName = string.Format("{0} - Copy ({1})", Path.GetFileNameWithoutExtension(filesToBeAdd[i]), count++);
-                            newFullPath = Path.Combine(Path.GetDirectoryName(filesToBeAdd[i]), tempFileName + Path.GetExtension(filesToBeAdd[i]));
+                            newFullPath = tempFileName + Path.GetExtension(filesToBeAdd[i]);
                         }
                         archive.CreateEntryFromFile(filesToBeAdd[i], Path.GetFileName(newFullPath));
                     }
@@ -709,11 +856,7 @@ namespace ArchivingServices
         }
 
         //TODO: get files metadata from archive
-        //TODO: extract particular file from archive
-        //TODO: get a file stream from archive
         //TODO: get all files metadata and streams from archive
-        //TODO: extract archive as flat directory
-        //TODO: extract archive to directory
         //TODO: overloads to specify the compressing algorithm with more support than the LZ77/78, DEFLATE like rar and others
     }
 }
