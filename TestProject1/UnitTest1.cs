@@ -27,8 +27,8 @@ namespace TestProject1
         }
 
         #region ArchiveFilesInRootFolder
-        string testFilePath , archivePath, fileName;
-        List<string>  filePathsSameNames = new List<string>();
+        string testFilePath, archivePath, fileName;
+        List<string> filePathsSameNames = new List<string>();
         #endregion
 
         #region commented
@@ -657,7 +657,7 @@ namespace TestProject1
         public void Test_ArchiveFiles_MemoryStream()
         {
 
-            List<ZipFileConfig> zipFileConfigss = new List<ZipFileConfig>() {new ZipFileConfig(testFilePath, fileName) };
+            List<ZipFileConfig> zipFileConfigss = new List<ZipFileConfig>() { new ZipFileConfig(testFilePath, fileName) };
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(zipFileConfigss).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
             Assert.AreEqual(fileName, Archive.Entries[0].FullName);
@@ -755,7 +755,7 @@ namespace TestProject1
         #region ExtractArchive
 
         [Test]
-        public void Test_Extract_Archive() 
+        public void Test_Extract_Archive()
         {
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractArchive(archivePath).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
@@ -785,7 +785,7 @@ namespace TestProject1
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ArchiveDirectoryStream_whenCalled_ReturnStream(bool allowedFlates)
+        public void ArchiveDirectoryStream_whenCalled_ReturnStream(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
@@ -793,17 +793,28 @@ namespace TestProject1
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
 
-            var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowedFlates);
+            var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
 
-            foreach (var inputFileInfo in inputFilesList)
+            if (!allowFlates)
             {
-                string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
-                fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
 
-                Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
             }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.Name == inputFileInfo.Name));
+                }
+            }
+
         }
         [Test]
         [TestCase(true)]
@@ -859,14 +870,14 @@ namespace TestProject1
         public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowedflates)
         {
             string pathDirectory = @"..\..\..\..\Testing\RedaArchiveDirectoryWithPatternStream";
-            string patternRegx= "file[0-9]{2}";
+            string patternRegx = "file[0-9]{2}";
             Regex patternMatch = new Regex(patternRegx);
             var result = ArchivingServicess.ArchiveDirectoryWithPatternStream(pathDirectory, SearchPattern.RegEx, patternRegx, allowedflates);
             MemoryStream memoryStreamTemp = new MemoryStream(result.ToArray());
             ZipArchive archive = new ZipArchive(memoryStreamTemp);
             DirectoryInfo directory = new DirectoryInfo(pathDirectory);
             IEnumerable<FileInfo> filesInDirectory = directory.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(f=>patternMatch.IsMatch(Path.GetFileName(f.ToString())));
+                .Where(f => patternMatch.IsMatch(Path.GetFileName(f.ToString())));
             foreach (var item in filesInDirectory)
             {
                 Assert.That(archive.Entries.Any(f => f.Name == item.Name));
@@ -928,7 +939,7 @@ namespace TestProject1
         #endregion
         #region AddFilesToExistingArchive
         [Test]
-        public  void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
+        public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
         {
             string filePath = @"..\..\..\..\Testing\RedaAddfilesToExistArchive.zip";
             List<string> filePaths = new List<string>()
@@ -1012,7 +1023,7 @@ namespace TestProject1
             Assert.AreEqual("test - Copy (1).txt", Archive.Entries[1].Name);
             Assert.AreEqual(fileName, Archive.Entries[0].Name);
 
-        } 
+        }
         #endregion
         #endregion
     }
