@@ -145,19 +145,26 @@ namespace ArchivingServices
         /// <returns>memoryStream</returns>
         public static MemoryStream ArchiveFiles(Dictionary<string, string> inFilesDictionary)
         {
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                using (var memoryStream = new MemoryStream())
                 {
-                    foreach (var kvp in inFilesDictionary)
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
-                        if (kvp.Value != null)
-                            archive.CreateEntryFromFile(kvp.Key, kvp.Value);
-                        else
-                            archive.CreateEntry(kvp.Key + "\\");
+                        foreach (var kvp in inFilesDictionary)
+                        {
+                            if (kvp.Value != null)
+                                archive.CreateEntryFromFile(kvp.Key, kvp.Value);
+                            else
+                                archive.CreateEntry(kvp.Key + "\\");
+                        }
+                        return memoryStream;
                     }
-                    return memoryStream;
                 }
+            }
+            catch
+            {
+                return null;
             }
         }
         /// <summary>
@@ -474,9 +481,9 @@ namespace ArchivingServices
                 {
                     foreach (var item in unZipArchive.Entries)
                     {
-                        if (item.FullName == particularPath)
+                        if (item.Name == particularPath)
                         {
-                            Archive.CreateEntry(particularPath);
+                            Archive.CreateEntryFromFile(item.FullName,particularPath);
                         }
                     }
                 }
@@ -527,9 +534,9 @@ namespace ArchivingServices
                 {
                     foreach (var item in unZipArchive.Entries)
                     {
-                        if (item.FullName != "")
+                        if (item.Name != "")
                         {
-                            Archive.CreateEntry(item.Name);
+                            Archive.CreateEntryFromFile(item.FullName,item.Name);
                         }
                     }
                 }
