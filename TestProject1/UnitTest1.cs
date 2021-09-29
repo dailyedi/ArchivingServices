@@ -794,7 +794,7 @@ namespace TestProject1
             var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowedEmptyNode);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
-            
+
             foreach (var inputFileInfo in inputFilesList)
             {
                 string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
@@ -860,22 +860,38 @@ namespace TestProject1
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowedflates)
+        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            string patternRegx= "file[0-9]{2}";
+            string patternRegx = "file[0-9]{2}";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowedflates);
+
+            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(f=>patternMatch.IsMatch(Path.GetFileName(f.ToString())));
-            foreach (var item in inputFilesList)
+                .Where(f => patternMatch.IsMatch(Path.GetFileName(f.ToString())));
+
+            if (allowFlates)
             {
-                Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                foreach (var item in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                }
             }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
+            }
+
         }
         [Test]
         [TestCase(true)]
@@ -886,7 +902,7 @@ namespace TestProject1
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowedflates);
+            var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowedflates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
@@ -941,7 +957,7 @@ namespace TestProject1
             string filePath = "AddfilesToExistArchive.zip";
             string fileTest1 = "test1.txt";
             string fileTest2 = "test2.txt";
-            string inputPath = @"..\..\..\..\Testing\Input\"+ filePath;
+            string inputPath = @"..\..\..\..\Testing\Input\" + filePath;
             List<string> filePaths = new List<string>()
             {
               @"..\..\..\..\Testing\Input\"+ fileTest1,
