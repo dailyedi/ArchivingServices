@@ -864,7 +864,7 @@ namespace TestProject1
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            string patternRegx= "file[0-9]{2}$";
+            string patternRegx= "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
@@ -897,7 +897,7 @@ namespace TestProject1
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            string patternRegx = "file[0-9]{2}$";
+            string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
