@@ -787,15 +787,22 @@ namespace TestProject1
         [TestCase(false)]
         public void ArchiveDirectoryStream_whenCalled_ReturnStream(bool allowedFlates)
         {
-            string pathDirectory= @"..\..\..\..\Testing\RedaArchiveDirectoryStream";
-            var result = ArchivingServicess.ArchiveDirectoryStream(pathDirectory, allowedFlates);
-            MemoryStream memoryStreamTemp = new MemoryStream(result.ToArray());
-            ZipArchive archive = new ZipArchive(memoryStreamTemp);
-            DirectoryInfo directory = new DirectoryInfo(pathDirectory);
-            IEnumerable<FileInfo> filesInDirectory = directory.GetFiles("*.*",SearchOption.AllDirectories);
-            foreach (var item in filesInDirectory)
+            string directoryName = "ArchiveDirectoryStream";
+            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+
+            DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
+            IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
+
+            var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowedFlates);
+            MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
+            ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
+
+            foreach (var inputFileInfo in inputFilesList)
             {
-                Assert.That(archive.Entries.Any(f => f.Name == item.Name));
+                string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
             }
         }
         [Test]
