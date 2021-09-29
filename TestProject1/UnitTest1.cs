@@ -860,77 +860,129 @@ namespace TestProject1
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowedflates)
+        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternRegx= "file[0-9]{2}$";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowedflates);
+            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories)
                 .Where(f=>patternMatch.IsMatch(Path.GetFileName(f.ToString())));
-            foreach (var item in inputFilesList)
+            if (allowFlates)
             {
-                Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                foreach (var item in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                }
+            }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
             }
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithRegx(bool allowedflates)
+        public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithRegx(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}$";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowedflates);
+            var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories)
                 .Where(f => patternMatch.IsMatch(Path.GetFileName(f.ToString())));
-            foreach (var item in inputFilesList)
+            if (allowFlates)
             {
-                Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                foreach (var item in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                }
+            }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
             }
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithWildCard(bool allowedflates)
+        public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithWildCard(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternWild = "?test.*";
-            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.WildCard, patternWild, allowedflates);
+            var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.WildCard, patternWild, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles(patternWild, SearchOption.AllDirectories);
-            foreach (var item in inputFilesList)
+            if (allowFlates)
             {
-                Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                foreach (var item in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                }
+            }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
             }
         }
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithWildCard(bool allowedflates)
+        public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithWildCard(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternWild = "?test.*";
-            var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.WildCard, patternWild, allowedflates);
+            var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.WildCard, patternWild, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles(patternWild, SearchOption.AllDirectories);
-            foreach (var item in inputFilesList)
+            if (allowFlates)
             {
-                Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                foreach (var item in inputFilesList)
+                {
+                    Assert.That(archivedFileZiped.Entries.Any(f => f.Name == item.Name));
+                }
+            }
+            else
+            {
+                foreach (var inputFileInfo in inputFilesList)
+                {
+                    string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
+                    fileFullName = fileFullName.Remove(0, directoryName.Count() + 1);
+
+                    Assert.That(archivedFileZiped.Entries.Any(ae => ae.FullName == fileFullName));
+                }
             }
         }
         #endregion
