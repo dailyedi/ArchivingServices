@@ -982,11 +982,13 @@ namespace TestProject1
 
         #region metadate
         [Test]
-        [TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
-        public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile(string filePath)
+        //[TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
         {
-            ZipArchive _zipFile = ZipFile.Open(filePath, ZipArchiveMode.Read);
-            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(filePath))
+            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string fileName = "FileToTestMeta.zip";
+
+            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
             {
                 Assert.NotNull(file.stream);
                 Assert.NotNull(file.fileMetadata.FullName);
@@ -1008,8 +1010,8 @@ namespace TestProject1
                 Assert.NotNull(file.fileMetadata.CompressedLength);
             }
         }
-        [Test] 
-         [TestCase(@"..\..\..\..\MetaDataTest\NewFolder.zip")]
+        [Test]
+        [TestCase(@"..\..\..\..\MetaDataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Not_Working_with_invalid_path(string filePath)
         {
             var ex = Assert.Throws<DirectoryNotFoundException>(() =>
