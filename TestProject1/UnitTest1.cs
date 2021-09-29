@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -816,10 +817,22 @@ namespace TestProject1
         [TestCase(false)]
         public void ArchiveDirectory_whenCalled_SavedArchivedDirectory(bool allowedFlates)
         {
-            ArchivingServicess.ArchiveDirectory(pathdir, allowedFlates);
-            ZipFile.ExtractToDirectory(pathdir + ".zip", extract, overwriteFiles: true);
-            var result = Directory.GetFiles(extract);
-            Assert.That(Path.GetFileName(result[0]), Is.EqualTo(testFile));
+            string pathDir = @"..\..\..\..\Testing\TestFiles\FareedTestFolder";
+            string extractDir = @"..\..\..\..\Testing\ResultFiles\FareedExtract";
+
+            ArchivingServicess.ArchiveDirectory(pathDir, allowedFlates);
+            ZipFile.ExtractToDirectory(pathDir + ".zip", extractDir, overwriteFiles: true);
+
+            DirectoryInfo dir1 = new DirectoryInfo(pathDir);
+            DirectoryInfo dir2 = new DirectoryInfo(extractDir);
+
+            IEnumerable<FileInfo> filesList1 = dir1.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
+            IEnumerable<FileInfo> filesList2 = dir2.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
+                             
+            foreach(var item in filesList1)
+            {
+                Assert.That(filesList2.Any(l2 => l2.Name == item.Name));
+            }
         }
         [Test]
         [TestCase(true)]
@@ -991,5 +1004,60 @@ namespace TestProject1
         #endregion
 
         #endregion
+
+        #region FileComparer
+
+        private bool FileCompare(string file1, string file2)
+        {
+            int file1byte;
+            int file2byte;
+            FileStream fs1;
+            FileStream fs2;
+
+            // Determine if the same file was referenced two times.
+            if (file1 == file2)
+            {
+                // Return true to indicate that the files are the same.
+                return true;
+            }
+
+            // Open the two files.
+            fs1 = new FileStream(file1, FileMode.Open);
+            fs2 = new FileStream(file2, FileMode.Open);
+
+            // Check the file sizes. If they are not the same, the files
+            // are not the same.
+            if (fs1.Length != fs2.Length)
+            {
+                // Close the file
+                fs1.Close();
+                fs2.Close();
+
+                // Return false to indicate files are different
+                return false;
+            }
+
+            // Read and compare a byte from each file until either a
+            // non-matching set of bytes is found or until the end of
+            // file1 is reached.
+            do
+            {
+                // Read one byte from each file.
+                file1byte = fs1.ReadByte();
+                file2byte = fs2.ReadByte();
+            }
+            while ((file1byte == file2byte) && (file1byte != -1));
+
+            // Close the files.
+            fs1.Close();
+            fs2.Close();
+
+            // Return the success of the comparison. "file1byte" is
+            // equal to "file2byte" at this point only if the files are
+            // the same.
+            return ((file1byte - file2byte) == 0);
+        }
+        #endregion
     }
+
 }
