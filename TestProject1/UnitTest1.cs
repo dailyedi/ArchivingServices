@@ -16,13 +16,6 @@ namespace TestProject1
     public class Tests
     {
 
-        
-        string patternRegx,  patternWild, pathZipFile,ExtractPathFiles ,pathdir, extract, 
-            pathdirFlates, extractFlates, pathdirPattern, pathdirPattern1, 
-            pathdirPatternextract, pathdirPatternextract1,
-            subFile,testFile, fileTestPatterRegx, fileTestPatterRegx1, fileTestPatterWild, fileTestPatterWild1, fileTestPatternWild;
-        Regex rgx;
-        List<string> filePaths = new List<string>();
         [SetUp]
         public void SetUp()
         {
@@ -31,29 +24,6 @@ namespace TestProject1
             archivePath = @"..\..\..\..\testFolder\ArchiveFilesInRootFolder_true_1.zip";
 
             filePathsSameNames = new List<string> { @"..\..\..\..\testFolder\New folder\test.txt", @"..\..\..\..\testFolder\test.txt" };
-            pathdir = @"..\..\..\..\Testing\TestFiles\TestDir";
-            extract = @"..\..\..\..\Testing\ResultFiles\Extract";
-            pathdirFlates = @"..\..\..\..\Testing\TestFiles\TestDirFlates";
-            extractFlates = @"..\..\..\..\Testing\ResultFiles\ExtractFlates";
-            pathdirPattern = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern";
-            pathdirPattern1 = @"..\..\..\..\Testing\TestFiles\TestDirWithPattern1";
-            pathdirPatternextract = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract";
-            pathdirPatternextract1 = @"..\..\..\..\Testing\ResultFiles\pathdirPatternextract1";
-            subFile = "SubTestFile1.txt";
-            testFile = "testFile.txt";
-            patternRegx = "file[0-9]{2}";
-            patternWild = "?test.*";
-            fileTestPatterRegx = "file54.txt";
-            fileTestPatterRegx1 = "file56.txt";
-            fileTestPatternWild = "dtest.txt";
-            fileTestPatterWild = "ptest.pptx";
-            pathZipFile = @"..\..\..\..\Testing\TestFiles\test.zip";
-            filePaths = new List<string>()
-            {
-                @"..\..\..\..\Testing\TestFiles\"+subFile,
-                @"..\..\..\..\Testing\TestFiles\"+testFile
-            };
-            ExtractPathFiles = @"..\..\..\..\Testing\ResultFiles\extractedPathFiles";
         }
 
         #region ArchiveFilesInRootFolder
