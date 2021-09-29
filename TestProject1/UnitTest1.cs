@@ -27,8 +27,8 @@ namespace TestProject1
         }
 
         #region ArchiveFilesInRootFolder
-        string testFilePath , archivePath, fileName;
-        List<string>  filePathsSameNames = new List<string>();
+        string testFilePath, archivePath, fileName;
+        List<string> filePathsSameNames = new List<string>();
         #endregion
 
         #region commented
@@ -657,7 +657,7 @@ namespace TestProject1
         public void Test_ArchiveFiles_MemoryStream()
         {
 
-            List<ZipFileConfig> zipFileConfigss = new List<ZipFileConfig>() {new ZipFileConfig(testFilePath, fileName) };
+            List<ZipFileConfig> zipFileConfigss = new List<ZipFileConfig>() { new ZipFileConfig(testFilePath, fileName) };
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ArchiveFiles(zipFileConfigss).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
             Assert.AreEqual(fileName, Archive.Entries[0].FullName);
@@ -755,7 +755,7 @@ namespace TestProject1
         #region ExtractArchive
 
         [Test]
-        public void Test_Extract_Archive() 
+        public void Test_Extract_Archive()
         {
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractArchive(archivePath).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
@@ -936,7 +936,7 @@ namespace TestProject1
         #endregion
         #region AddFilesToExistingArchive
         [Test]
-        public  void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
+        public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
         {
             string filePath = "AddfilesToExistArchive.zip";
             string fileTest1 = "test1.txt";
@@ -1023,7 +1023,7 @@ namespace TestProject1
             Assert.AreEqual("test - Copy (1).txt", Archive.Entries[1].Name);
             Assert.AreEqual(fileName, Archive.Entries[0].Name);
 
-        } 
+        }
         #endregion
         #endregion
     }
