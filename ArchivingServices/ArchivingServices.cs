@@ -700,7 +700,7 @@ namespace ArchivingServices
                         while (archive.Entries.Any(entry => entry.Name == Path.GetFileName(newFullPath)))
                         {
                             string tempFileName = string.Format("{0} - Copy ({1})", Path.GetFileNameWithoutExtension(filesToBeAdd[i]), count++);
-                            newFullPath = newFullPath = tempFileName + Path.GetExtension(filesToBeAdd[i]);
+                            newFullPath = tempFileName + Path.GetExtension(filesToBeAdd[i]);
                         }
                         archive.CreateEntryFromFile(filesToBeAdd[i], Path.GetFileName(newFullPath));
                     }
