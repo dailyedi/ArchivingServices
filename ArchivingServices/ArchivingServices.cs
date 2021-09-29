@@ -696,11 +696,11 @@ namespace ArchivingServices
                     for (int i = 0; i < filesToBeAdd.Count; i++)
                     {
                         int count = 1;
-                        string newFullPath = filesToBeAdd[i];
+                        string newFullPath = Path.GetFileName(filesToBeAdd[i]);
                         while (archive.Entries.Any(entry => entry.Name == Path.GetFileName(newFullPath)))
                         {
                             string tempFileName = string.Format("{0} - Copy ({1})", Path.GetFileNameWithoutExtension(filesToBeAdd[i]), count++);
-                            newFullPath = Path.Combine(Path.GetDirectoryName(filesToBeAdd[i]), tempFileName + Path.GetExtension(filesToBeAdd[i]));
+                            newFullPath = newFullPath = tempFileName + Path.GetExtension(filesToBeAdd[i]);
                         }
                         archive.CreateEntryFromFile(filesToBeAdd[i], Path.GetFileName(newFullPath));
                     }
