@@ -507,9 +507,6 @@ namespace TestProject1
         #endregion Archiving
 
 
-
-
-
         //#region Extract_Rar_Archive
 
         //[Test]
@@ -530,11 +527,7 @@ namespace TestProject1
         //}
         //#endregion
 
-
-
-
-
-        #region metadate
+        #region metadata
         [Test]
         //[TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
@@ -586,7 +579,6 @@ namespace TestProject1
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-
                 foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(null))
                 {
                 }
@@ -596,7 +588,7 @@ namespace TestProject1
         }
 
 
-        #endregion
+        #endregion Metadata
     }
 
 }
