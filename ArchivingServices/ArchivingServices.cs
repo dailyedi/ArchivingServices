@@ -599,6 +599,7 @@ namespace ArchivingServices
 
         //TODO: archive directory (same location, same name, only parameter is directory path)
 
+        #region Mohamed
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory 
         /// </summary>
@@ -609,8 +610,8 @@ namespace ArchivingServices
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
-            return ArchiveFiles(pathsResult,archivedPath);
-           
+            return ArchiveFiles(pathsResult, archivedPath);
+
         }
         /// <summary>
         /// a simple  async function that wraps the functionality for archiving a Directory 
@@ -622,7 +623,7 @@ namespace ArchivingServices
         {
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
-            return await ArchiveFilesAsync(pathsResult,archivedPath);
+            return await ArchiveFilesAsync(pathsResult, archivedPath);
         }
         /// <summary>
         /// a simple function that wraps the functionality for archiving a Directory 
@@ -641,7 +642,7 @@ namespace ArchivingServices
         /// <param name="directoryPathOnDisk">a phisycal path for a Directory which you Want to Archive</param>
         /// <param name="allowEmptyNode">a flag determines that do you want empty Directories or not, Default is True </param>
         /// <returns>return archived directory as a MemoryStream Formate</returns>
-        public static async Task <MemoryStream> ArchiveDirectoryStreamAsync(string directoryPathOnDisk, bool allowEmptyNode = true)
+        public static async Task<MemoryStream> ArchiveDirectoryStreamAsync(string directoryPathOnDisk, bool allowEmptyNode = true)
         {
             var pathsResult = GetDirctoryPaths(directoryPathOnDisk, allowEmptyNode);
             return await ArchiveFilesAsync(pathsResult);
@@ -679,7 +680,7 @@ namespace ArchivingServices
             var archivedPath = directoryPathOnDisk + ".zip";
             var pathsResult = GetDirctoryPathsFlates(directoryPathOnDisk);
             return ArchiveFiles(CheckDuplicateName(pathsResult), archivedPath);
-           
+
         }
         /// <summary>
         /// a simple async function that wraps the functionality for archiving a Directory Ignoring Sub Directpries
@@ -735,12 +736,12 @@ namespace ArchivingServices
         /// <param name="pattern"> contains the pattern you want to filter With it</param>
         /// <param name="allowedFlates">a flag determines what do you want Either subfolders or Flats directory </param>
         /// <returns>returns boolean for indicating that archived directory saved or not</returns>
-        public static bool ArchiveDirectoryWithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern,  bool allowedFlates = default)
+        public static bool ArchiveDirectoryWithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
         {
             var archivePath = directoryPathOnDisk + ".zip";
-            var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern,  allowedFlates);
-            if(allowedFlates)
-                return ArchiveFiles(CheckDuplicateName( pathsResult),archivePath);
+            var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
+            if (allowedFlates)
+                return ArchiveFiles(CheckDuplicateName(pathsResult), archivePath);
             else
                 return ArchiveFiles(pathsResult, archivePath);
 
@@ -774,8 +775,8 @@ namespace ArchivingServices
         public static MemoryStream ArchiveDirectoryWithPatternStream(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates = default)
         {
             var pathsResult = GetPathsFilesInDirectorywithPattern(directoryPathOnDisk, searchWay, pattern, allowedFlates);
-            if(allowedFlates)
-                return ArchiveFiles(CheckDuplicateName( pathsResult));
+            if (allowedFlates)
+                return ArchiveFiles(CheckDuplicateName(pathsResult));
             else
                 return ArchiveFiles(pathsResult);
         }
@@ -803,7 +804,7 @@ namespace ArchivingServices
         /// <param name="pattern"> contains the pattern you want to filter With it</param>
         /// <param name="allowedFlates">a flag determines what do you want Either subfolders or Flats directory </param>
         /// <returns>return a Dictionary that Contains Key:phisycal path of files,Value:relative path for Archived Directory</returns>
-        private static Dictionary<string, string> GetPathsFilesInDirectorywithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern,  bool allowedFlates)
+        private static Dictionary<string, string> GetPathsFilesInDirectorywithPattern(string directoryPathOnDisk, SearchPattern searchWay, string pattern, bool allowedFlates)
         {
             Dictionary<string, string> Paths = new Dictionary<string, string>();
             if (searchWay == SearchPattern.RegEx)
@@ -853,7 +854,8 @@ namespace ArchivingServices
                     }
                 }
             }
-        }
+        } 
+        #endregion
 
         //TODO: get files metadata from archive
         //TODO: get all files metadata and streams from archive

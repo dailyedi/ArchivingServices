@@ -805,6 +805,7 @@ namespace TestProject1
 
 
 
+        #region Mohamed
         #region TestingArchivingDirectory
         [Test]
         [TestCase(true)]
@@ -888,14 +889,14 @@ namespace TestProject1
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            string patternRegx= "file[0-9]{2}.txt$";
+            string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(f=>patternMatch.IsMatch(Path.GetFileName(f.ToString())));
+                .Where(f => patternMatch.IsMatch(Path.GetFileName(f.ToString())));
             if (allowFlates)
             {
                 foreach (var item in inputFilesList)
@@ -923,7 +924,7 @@ namespace TestProject1
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
+            var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
@@ -1033,6 +1034,7 @@ namespace TestProject1
                 Assert.That(archive.Entries.Any(f => f.Name == Path.GetFileName(item)));
             }
         }
+        #endregion 
         #endregion
 
         #endregion
