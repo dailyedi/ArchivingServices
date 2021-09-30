@@ -551,7 +551,7 @@ namespace ArchivingServices
         /// <param name="zipPath">the archive path on disk </param>
         /// <param name="extractPath">the extract zip file path</param>
         /// <returns>the result as to where it was successful or not</returns>
-        public static bool ExtractArchiveFlatDirectory(string zipPath, string extractPath) 
+        public static bool ExtractArchiveFlatDirectory(string zipPath, string extractPath)
         {
             try
             {
@@ -639,7 +639,7 @@ namespace ArchivingServices
         /// <param name="rarPackagePath">the rar path on disk </param>
         /// <param name="extractPath">the extract rar file path</param>
         /// <returns>the result as to where it was successful or not</returns>
-        public static bool ExtractRarArchive(string rarPackagePath, string extractPath) 
+        public static bool ExtractRarArchive(string rarPackagePath, string extractPath)
         {
             try
             {
@@ -649,7 +649,7 @@ namespace ArchivingServices
                     {
                         entry.WriteToDirectory(extractPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
                     }
-                     return File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}"); 
+                    return File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}");
                 }
             }
             catch
@@ -914,7 +914,7 @@ namespace ArchivingServices
         /// <param name="archiveFile">a phisycal path for Archive file</param>
         /// <param name="filesToBeAdd">List of Files </param>
         /// <returns>no return just Add Files To Exsiting Archive</returns>
-        public static void AddfilesToExistArchive(string archiveFilePathOnDisk, List<string> filesToBeAdd)
+        public static void AddFilesToExistingArchive(string archiveFilePathOnDisk, List<string> filesToBeAdd)
         {
             using (FileStream fs = File.Open(archiveFilePathOnDisk, FileMode.Open))
             {
@@ -933,7 +933,36 @@ namespace ArchivingServices
                     }
                 }
             }
-        } 
+        }
+
+        public static MemoryStream AddFilesToExistingArchiveStreamed(string archiveFilePathOnDisk, List<string> filesToBeAdd)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                using (FileStream zippedFile = File.Open(archiveFilePathOnDisk, FileMode.Open))
+                {
+                    zippedFile.CopyTo(memoryStream);
+
+                    using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Update, true))
+                    {
+                        for (int i = 0; i < filesToBeAdd.Count; i++)
+                        {
+                            int count = 1;
+                            string newFullPath = Path.GetFileName(filesToBeAdd[i]);
+                            while (archive.Entries.Any(entry => entry.Name == Path.GetFileName(newFullPath)))
+                            {
+                                string tempFileName = string.Format("{0} - Copy ({1})", Path.GetFileNameWithoutExtension(filesToBeAdd[i]), count++);
+                                newFullPath = tempFileName + Path.GetExtension(filesToBeAdd[i]);
+                            }
+
+                            archive.CreateEntryFromFile(filesToBeAdd[i], Path.GetFileName(newFullPath));
+                        }
+                    }
+                }
+
+                return memoryStream;
+            }
+        }
         #endregion
 
         /// <summary>

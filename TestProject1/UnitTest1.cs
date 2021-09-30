@@ -448,15 +448,16 @@ namespace TestProject1
               @"..\..\..\..\Testing\Input\"+ fileTest1,
               @"..\..\..\..\Testing\Input\"+ fileTest2
             };
-            ArchivingServicess.AddfilesToExistArchive(inputPath, filePaths);
-            FileStream fileArchived = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
-            MemoryStream archivedFileStream = new MemoryStream();
-            fileArchived.CopyTo(archivedFileStream);
-            ZipArchive archive = new ZipArchive(archivedFileStream);
+
+            MemoryStream streamedFile = ArchivingServicess.AddFilesToExistingArchiveStreamed(inputPath, filePaths);
+            var streamedFileArray = new MemoryStream(streamedFile.ToArray());
+            ZipArchive archive = new ZipArchive(streamedFileArray);
+
             foreach (var item in filePaths)
             {
                 Assert.That(archive.Entries.Any(f => f.Name == Path.GetFileName(item)));
             }
+
         }
         #endregion 
         #endregion Archiving
@@ -496,25 +497,25 @@ namespace TestProject1
 
         #endregion
 
-        #region Extract_Rar_Archive
+        //#region Extract_Rar_Archive
 
-        [Test]
-        public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
-        {
-            var d = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            ArchivingServicess.AddfilesToExistArchive(pathZipFile, filePaths);
-            ZipFile.ExtractToDirectory(pathZipFile, ExtractPathFiles, overwriteFiles: true);
-            var allFiles = Directory.GetFiles(ExtractPathFiles);
-            bool result = false;
-            foreach (var item in allFiles)
-            {
-                result = item.EndsWith("hello.txt");
-                if (result)
-                    break;
-            }
-            Assert.That(result, Is.True);
-        }
-        #endregion
+        //[Test]
+        //public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
+        //{
+        //    var d = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+        //    ArchivingServicess.AddfilesToExistArchive(pathZipFile, filePaths);
+        //    ZipFile.ExtractToDirectory(pathZipFile, ExtractPathFiles, overwriteFiles: true);
+        //    var allFiles = Directory.GetFiles(ExtractPathFiles);
+        //    bool result = false;
+        //    foreach (var item in allFiles)
+        //    {
+        //        result = item.EndsWith("hello.txt");
+        //        if (result)
+        //            break;
+        //    }
+        //    Assert.That(result, Is.True);
+        //}
+        //#endregion
 
         #region Test_Extract_Rar_Archive_Memorystream
         [Test]
