@@ -17,6 +17,10 @@
 		<PackageId>DailyEDI.$(AssemblyName)</PackageId>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="SharpCompress" Version="0.29.0" />
+	</ItemGroup>
+
 	
 
 </Project>

@@ -7,6 +7,9 @@ using System.Security.Cryptography;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SharpCompress.Archives.Rar;
+using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace ArchivingServices
 {
@@ -170,19 +173,26 @@ namespace ArchivingServices
         /// <returns>memoryStream</returns>
         public static MemoryStream ArchiveFiles(Dictionary<string, string> inFilesDictionary)
         {
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                using (var memoryStream = new MemoryStream())
                 {
-                    foreach (var kvp in inFilesDictionary)
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
-                        if (kvp.Value != null)
-                            archive.CreateEntryFromFile(kvp.Key, kvp.Value);
-                        else
-                            archive.CreateEntry(kvp.Key + "\\");
+                        foreach (var kvp in inFilesDictionary)
+                        {
+                            if (kvp.Value != null)
+                                archive.CreateEntryFromFile(kvp.Key, kvp.Value);
+                            else
+                                archive.CreateEntry(kvp.Key + "\\");
+                        }
+                        return memoryStream;
                     }
-                    return memoryStream;
                 }
+            }
+            catch
+            {
+                return null;
             }
         }
         /// <summary>
@@ -461,7 +471,7 @@ namespace ArchivingServices
                 MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
                 ZipArchive Archive = new ZipArchive(memoryStream);
                 Archive.ExtractToDirectory(extractPath);
-                return File.Exists($"{extractPath}/{Archive.Entries[0].FullName}");
+                return File.Exists($"{extractPath}/{Archive.Entries[0].Name}");
             }
             catch
             {
@@ -525,7 +535,7 @@ namespace ArchivingServices
                 {
                     foreach (var item in unZipArchive.Entries)
                     {
-                        if (item.FullName == particularPath)
+                        if (item.Name == particularPath)
                         {
                             Archive.CreateEntry(particularPath);
                         }
@@ -540,7 +550,7 @@ namespace ArchivingServices
         /// <param name="zipPath">the archive path on disk </param>
         /// <param name="extractPath">the extract zip file path</param>
         /// <returns>the result as to where it was successful or not</returns>
-        public static bool extractArchiveFlatDirectory(string zipPath, string extractPath) 
+        public static bool ExtractArchiveFlatDirectory(string zipPath, string extractPath) 
         {
             try
             {
@@ -566,7 +576,7 @@ namespace ArchivingServices
         /// </summary>
         /// <param name="zipPath">the archive path on disk </param>
         /// <returns>memorystream</returns>
-        public static MemoryStream extractArchiveFlatDirectory(string zipPath)
+        public static MemoryStream ExtractArchiveFlatDirectory(string zipPath)
         {
 
             MemoryStream extractData = new MemoryStream(ExtractArchive(zipPath).ToArray());
@@ -578,7 +588,7 @@ namespace ArchivingServices
                 {
                     foreach (var item in unZipArchive.Entries)
                     {
-                        if (item.FullName != "")
+                        if (item.Name != "")
                         {
                             Archive.CreateEntry(item.Name);
                         }
@@ -587,9 +597,77 @@ namespace ArchivingServices
                 return memoryStream;
             }
         }
-
-
-
+        /// <summary>
+        /// rar archive files in the list of paths collectionFiles to the destination rarPackagePath
+        /// with using the file names in the rar archive 
+        /// all of them in the root directory of the rar archive
+        /// </summary>
+        /// <param name="rarPackagePath">the files path list to rar archive</param>
+        /// <param name="collectionFiles">the rar file path to create</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static bool ArchiveRarFiles(string rarPackagePath, List<string> collectionFiles)
+        {
+            try
+            {
+                var files = collectionFiles.Select(file => "\"" + file).ToList();
+                var fileList = string.Join("\" ", files);
+                fileList += "\"";
+                if (rarPackagePath == null) return false;
+                var arguments = $"A \"{rarPackagePath}\" {fileList} -ep1 -r";
+                var processStartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    ErrorDialog = false,
+                    UseShellExecute = true,
+                    Arguments = arguments,
+                    FileName = @"C:\Program Files\WinRAR\WinRAR.exe",
+                    CreateNoWindow = false,
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+                };
+                var process = System.Diagnostics.Process.Start(processStartInfo);
+                process?.WaitForExit();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract rar archive
+        /// </summary>
+        /// <param name="rarPackagePath">the rar path on disk </param>
+        /// <param name="extractPath">the extract rar file path</param>
+        /// <returns>the result as to where it was successful or not</returns>
+        public static bool ExtractRarArchive(string rarPackagePath, string extractPath) 
+        {
+            try
+            {
+                using (var archive = RarArchive.Open(rarPackagePath))
+                {
+                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
+                    {
+                        entry.WriteToDirectory(extractPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
+                    }
+                     return File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}"); 
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// a simple function that extract rar archive
+        /// </summary>
+        /// <param name="rarPackagePath">the rar archive path on disk </param>
+        /// <returns>memorystream</returns>
+        public static MemoryStream ExtractRarArchive(string rarPackagePath)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            using (FileStream file = new FileStream(rarPackagePath, FileMode.Open, FileAccess.Read))
+                file.CopyTo(memoryStream);
+            return memoryStream;
+        }
 
         //TODO: extract archive to directory
         //TODO: extract particular file from archive
