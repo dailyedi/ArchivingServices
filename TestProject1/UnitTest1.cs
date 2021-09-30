@@ -18,8 +18,11 @@ namespace TestProject1
     public class Tests
     {
 
+<<<<<<< HEAD
         Regex rgx;
         List<string> filePaths = new List<string>();
+=======
+>>>>>>> a8cd1e20e5f96dd1c830d4136cbd76b630f98973
         [SetUp]
         public void SetUp()
         {
