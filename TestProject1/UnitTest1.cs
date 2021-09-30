@@ -1,6 +1,7 @@
 using ArchivingServices;
 using ArchivingServices.Structure;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -9,6 +10,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Drawing;
 
 
 namespace TestProject1
@@ -1077,6 +1079,72 @@ namespace TestProject1
 
         }
         #endregion
+        #endregion
+
+
+
+        #region metadate
+        [Test]
+        //[TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
+        {
+            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string fileName = "FileToTestMetaS.zip";
+
+            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+            {
+                Assert.NotNull(file.stream);
+                Assert.NotNull(file.fileMetadata.FullName);
+                Assert.NotNull(file.fileMetadata.Length);
+                Assert.NotNull(file.fileMetadata.CompressedLength);
+            }
+
+        }
+        [Test]
+       // [TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Working_with_file_contains_multiple_subfiles( )
+        {
+            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string fileName = "FileToTestMetaM.zip";
+            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+            {
+                Assert.NotNull(file.stream);
+                Assert.NotNull(file.fileMetadata.FullName);
+                Assert.NotNull(file.fileMetadata.Length);
+                Assert.NotNull(file.fileMetadata.CompressedLength);
+            }
+        }
+        [Test]
+      //  [TestCase(@"..\..\..\..\MetaDataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Not_Working_with_invalid_path()
+        {
+            string inputPath = @"..\..\..\..\Testing\MetadataTest\";
+            string fileName = "FileToTestMetaM.zip";
+            var ex = Assert.Throws<DirectoryNotFoundException>(() =>
+            {
+                foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+                {
+
+                }
+            });
+            Assert.That(ex.Message, Is.EqualTo(ex.Message));
+        }
+        [Test]
+       // [TestCase(null)]
+        public void GetFilesMetadataFromArchive_Not_Working_with_null_path()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+
+                foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(null))
+                {
+                }
+            });
+            Assert.That(ex.Message, Is.EqualTo(ex.Message));
+
+        }
+
+
         #endregion
     }
 
