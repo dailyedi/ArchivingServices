@@ -781,6 +781,7 @@ namespace TestProject1
 
 
 
+        #region Mohamed
         #region TestingArchivingDirectory
         [Test]
         [TestCase(true)]
@@ -794,7 +795,7 @@ namespace TestProject1
             var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowedEmptyNode);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
-            
+
             foreach (var inputFileInfo in inputFilesList)
             {
                 string fileFullName = inputFileInfo.FullName.Substring(inputFileInfo.FullName.LastIndexOf(directoryName));
@@ -864,14 +865,14 @@ namespace TestProject1
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            string patternRegx= "file[0-9]{2}.txt$";
+            string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(f=>patternMatch.IsMatch(Path.GetFileName(f.ToString())));
+                .Where(f => patternMatch.IsMatch(Path.GetFileName(f.ToString())));
             if (allowFlates)
             {
                 foreach (var item in inputFilesList)
@@ -899,7 +900,7 @@ namespace TestProject1
             string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
-            var archivedFile =await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
+            var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
@@ -988,12 +989,12 @@ namespace TestProject1
         #endregion
         #region AddFilesToExistingArchive
         [Test]
-        public  void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
+        public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
         {
             string filePath = "AddfilesToExistArchive.zip";
             string fileTest1 = "test1.txt";
             string fileTest2 = "test2.txt";
-            string inputPath = @"..\..\..\..\Testing\Input\"+ filePath;
+            string inputPath = @"..\..\..\..\Testing\Input\" + filePath;
             List<string> filePaths = new List<string>()
             {
               @"..\..\..\..\Testing\Input\"+ fileTest1,
@@ -1009,6 +1010,7 @@ namespace TestProject1
                 Assert.That(archive.Entries.Any(f => f.Name == Path.GetFileName(item)));
             }
         }
+        #endregion 
         #endregion
 
         #endregion
