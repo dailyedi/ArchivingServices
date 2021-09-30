@@ -643,7 +643,8 @@ namespace ArchivingServices
         {
             try
             {
-                using (var archive = RarArchive.Open(rarPackagePath))
+                MemoryStream memoryStream = new MemoryStream(ExtractRarArchive(rarPackagePath).ToArray());
+                using (var archive = RarArchive.Open(memoryStream))
                 {
                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                     {
