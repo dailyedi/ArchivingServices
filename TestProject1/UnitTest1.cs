@@ -2,6 +2,7 @@ using ArchivingServices;
 using ArchivingServices.Structure;
 using NUnit.Framework;
 using SharpCompress.Archives.Rar;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -10,6 +11,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Drawing;
 
 
 namespace TestProject1
@@ -497,16 +499,20 @@ namespace TestProject1
         #region Extract_Rar_Archive
 
         [Test]
-        public void Exract_Rar_Archivr()
+        public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
         {
-            string rarPath = "D:/testRAR.rar", extractPath = "D:\\extract";
-            var index = 0;
-
-            Assert.IsTrue(ArchivingServicess.ExtractRarArchive(rarPath, extractPath));
-            RarArchive archive = RarArchive.Open(rarPath);
-
-            foreach (var item in archive.Entries){ Assert.IsTrue(File.Exists($"{extractPath}/{archive.Entries.ElementAt(index).Key}"));index += 1; }
-
+            var d = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            ArchivingServicess.AddfilesToExistArchive(pathZipFile, filePaths);
+            ZipFile.ExtractToDirectory(pathZipFile, ExtractPathFiles, overwriteFiles: true);
+            var allFiles = Directory.GetFiles(ExtractPathFiles);
+            bool result = false;
+            foreach (var item in allFiles)
+            {
+                result = item.EndsWith("hello.txt");
+                if (result)
+                    break;
+            }
+            Assert.That(result, Is.True);
         }
         #endregion
 
@@ -527,6 +533,71 @@ namespace TestProject1
         }
         #endregion
 
+
+
+        #region metadate
+        [Test]
+        //[TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
+        {
+            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string fileName = "FileToTestMetaS.zip";
+
+            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+            {
+                Assert.NotNull(file.stream);
+                Assert.NotNull(file.fileMetadata.FullName);
+                Assert.NotNull(file.fileMetadata.Length);
+                Assert.NotNull(file.fileMetadata.CompressedLength);
+            }
+
+        }
+        [Test]
+       // [TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Working_with_file_contains_multiple_subfiles( )
+        {
+            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string fileName = "FileToTestMetaM.zip";
+            foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+            {
+                Assert.NotNull(file.stream);
+                Assert.NotNull(file.fileMetadata.FullName);
+                Assert.NotNull(file.fileMetadata.Length);
+                Assert.NotNull(file.fileMetadata.CompressedLength);
+            }
+        }
+        [Test]
+      //  [TestCase(@"..\..\..\..\MetaDataTest\NewFolder.zip")]
+        public void GetFilesMetadataFromArchive_Not_Working_with_invalid_path()
+        {
+            string inputPath = @"..\..\..\..\Testing\MetadataTest\";
+            string fileName = "FileToTestMetaM.zip";
+            var ex = Assert.Throws<DirectoryNotFoundException>(() =>
+            {
+                foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
+                {
+
+                }
+            });
+            Assert.That(ex.Message, Is.EqualTo(ex.Message));
+        }
+        [Test]
+       // [TestCase(null)]
+        public void GetFilesMetadataFromArchive_Not_Working_with_null_path()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+
+                foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(null))
+                {
+                }
+            });
+            Assert.That(ex.Message, Is.EqualTo(ex.Message));
+
+        }
+
+
+        #endregion
     }
 
 }

@@ -204,7 +204,8 @@ namespace ArchivingServices
         public static async Task<MemoryStream> ArchiveFilesAsync(Dictionary<string, string> inFilesDictionary)
         {
             var memoryStream = new MemoryStream();
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 using (memoryStream)
                 {
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
@@ -935,6 +936,34 @@ namespace ArchivingServices
         } 
         #endregion
 
+        /// <summary>
+        /// </summary>
+        /// <param name="ArchiveFilesPaths"></param>
+        /// <returns>IEnumerable<(string, FileInfo)></returns>
+        public static IEnumerable<(Stream stream, FileMetadata fileMetadata)> GetFilesMetadataFromArchive(string ArchiveFilesPaths = null)
+        {
+            if (ArchiveFilesPaths != null)
+            {
+                foreach (var entry in ZipFile.Open(ArchiveFilesPaths, ZipArchiveMode.Read).Entries)
+                {
+                    yield return (entry.Open(), new FileMetadata()
+                    {
+                        CompressedLength = entry.CompressedLength,
+                        FullName = entry.FullName,
+                        Length = entry.Length,
+                        LastWriteTime = entry.LastWriteTime.DateTime
+                    });
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException($"Archive Files Paths can't be null");
+            }
+
+        }
+
+
+        // push form metadata
         //TODO: get files metadata from archive
         //TODO: get all files metadata and streams from archive
         //TODO: overloads to specify the compressing algorithm with more support than the LZ77/78, DEFLATE like rar and others
