@@ -26,8 +26,8 @@ namespace TestProject1
             string fileName1 = "test1.txt", fileName2 = "test1 - Copy (1).txt";
             List<string> pathsSameName = new()
             {
-                @"..\..\..\..\Testing\Input\test1.txt",
-                @"..\..\..\..\Testing\test1.txt"
+                @"Testing\Input\test1.txt",
+                @"Testing\test1.txt"
             };
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFilesInRootFolder(pathsSameName).ToArray());
@@ -44,7 +44,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveSingleFileInRootFolder_MemoryStream()
         {
-            string testFilePath = @"..\..\..\..\Testing\Input\test.txt", fileName = "test.txt";
+            string testFilePath = @"Testing\Input\test.txt", fileName = "test.txt";
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveSingleFileInRootFolder(testFilePath).ToArray());
             ZipArchive Archive = new(memoryStream);
@@ -59,7 +59,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFiles_MemoryStream()
         {
-            string testFilePath = @"..\..\..\..\Testing\Input\test.txt", fileName = "test.txt";
+            string testFilePath = @"Testing\Input\test.txt", fileName = "test.txt";
             List<ZipFileConfig> zipFileConfig = new() { new ZipFileConfig(testFilePath, fileName) };
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFiles(zipFileConfig).ToArray());
@@ -75,7 +75,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveSingleFile_MemoryStream()
         {
-            string fileName = "new/test.txt", testFilePath = @"..\..\..\..\Testing\Input\test.txt";
+            string fileName = "new/test.txt", testFilePath = @"Testing\Input\test.txt";
             ZipFileConfig zipFileConfigs = new(testFilePath, fileName);
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveSingleFile(zipFileConfigs).ToArray());
@@ -93,7 +93,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFile_MemoryStream()
         {
-            string testFilePath = @"..\..\..\..\Testing\Input\test.txt", filName = "new/test.txt";
+            string testFilePath = @"Testing\Input\test.txt", filName = "new/test.txt";
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFile(testFilePath, filName).ToArray());
             ZipArchive Archive = new(memoryStream);
@@ -108,7 +108,7 @@ namespace TestProject1
         [Test]
         public void Test_MemoryStream_Dic_MemoryStream()
         {
-            string testFilePath = @"..\..\..\..\Testing\Input\test.txt", fileName = "test.txt";
+            string testFilePath = @"Testing\Input\test.txt", fileName = "test.txt";
             Dictionary<string, string> dic = new() { { testFilePath, fileName } };
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFiles(dic).ToArray());
@@ -125,7 +125,7 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFiles_Dic_MemoryStream()
         {
-            string testFilePath = @"..\..\..\..\Testing\Input\test.txt", fileName = "test.txt";
+            string testFilePath = @"Testing\Input\test.txt", fileName = "test.txt";
             Dictionary<string, string> dic = new() { { testFilePath, fileName } };
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFiles(dic).ToArray());
@@ -200,7 +200,7 @@ namespace TestProject1
         public void Test_Extract_Archive()
         {
             string fileName1 = "test1.txt", fileName2 = "test2.txt";
-            string archivePath = @"..\..\..\..\Testing\Input\ArchiveFilesInRootFolder.zip";
+            string archivePath = @"Testing\Input\ArchiveFilesInRootFolder.zip";
 
             MemoryStream memoryStream = new(ArchivingServicess.ExtractArchive(archivePath).ToArray());
             ZipArchive Archive = new(memoryStream);
@@ -218,7 +218,7 @@ namespace TestProject1
         [Test]
         public void Test_Extract_Particular_File()
         {
-            string fileName = "test.txt", archivePath = @"..\..\..\..\Testing\Input\ArchiveFilesInRootFolder.zip";
+            string fileName = "test.txt", archivePath = @"Testing\Input\ArchiveFilesInRootFolder.zip";
 
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractParticularFile(archivePath, fileName).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
@@ -235,7 +235,7 @@ namespace TestProject1
         [Test]
         public void Test_Extract_Rar_Archive_Memorystream()
         {
-            string rarPath = @"..\..\..\..\Testing\Input\testRAR.rar";
+            string rarPath = @"Testing\Input\testRAR.rar";
             var index = 0;
             var filesCollection = new List<string> { "test1.txt", "test2.txt" };
 
@@ -257,7 +257,7 @@ namespace TestProject1
         public void Test_Extract_Archive_Flat_Directory()
         {
             string fileName1 = "test1.txt", fileName2 = "test2.txt";
-            string archivePath = @"..\..\..\..\Testing\Input\ArchiveFilesInRootFolder.zip";
+            string archivePath = @"Testing\Input\ArchiveFilesInRootFolder.zip";
 
             MemoryStream memoryStream = new(ArchivingServicess.ExtractArchiveFlatDirectory(archivePath).ToArray());
             ZipArchive Archive = new(memoryStream);
@@ -267,6 +267,23 @@ namespace TestProject1
             Assert.AreEqual(fileName2, Archive.Entries[1].Name);
             Assert.AreEqual(fileName1, Archive.Entries[0].Name);
 
+        }
+        #endregion
+
+        #region test_Archive_Rar
+        [Test]
+        public void test_Archive_Rar_Files()
+        {
+            var index = 0;
+            var rarPath = @"Testing\Output\testRAR.rar";
+            var filesCollection = new List<string> 
+            { 
+                @"Testing\Input\test1.txt", 
+                @"Testing\Input\test2.txt" 
+            };
+            Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
+            RarArchive archive = RarArchive.Open(rarPath);
+            foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key)); index += 1; }
         }
         #endregion
 
@@ -280,7 +297,7 @@ namespace TestProject1
         public void ArchiveDirectoryStream_whenCalled_ReturnStream(bool allowedEmptyNode)
         {
             string directoryName = "ArchiveDirectoryStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             DirectoryInfo inputDirectoryInfo = new DirectoryInfo(inputPath);
             IEnumerable<FileInfo> inputFilesList = inputDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
             var archivedFile = ArchivingServicess.ArchiveDirectoryStream(inputPath, allowedEmptyNode);
@@ -301,7 +318,7 @@ namespace TestProject1
         public async Task ArchiveDirectoryStreamAsync_whenCalled_ReturnStream(bool allowedEmptyNode)
         {
             string directoryName = "ArchiveDirectoryStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             var archivedFile = await ArchivingServicess.ArchiveDirectoryStreamAsync(inputPath, allowedEmptyNode);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
@@ -321,7 +338,7 @@ namespace TestProject1
         public void ArchiveDirectoryFlatesStream_whenCalled_ReturnStream()
         {
             string directoryName = "ArchiveDirectoryFlatesStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             var archivedFile = ArchivingServicess.ArchiveDirectoryFlatesStream(inputPath);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
@@ -336,7 +353,7 @@ namespace TestProject1
         public async Task ArchiveDirectoryFlatesStreamAsync_whenCalled_ReturnStream()
         {
             string directoryName = "ArchiveDirectoryFlatesStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             var archivedFile = await ArchivingServicess.ArchiveDirectoryFlatesStreamAsync(inputPath);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
             ZipArchive archivedFileZiped = new ZipArchive(archivedFileStream);
@@ -355,7 +372,7 @@ namespace TestProject1
         public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithRegx(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
@@ -388,7 +405,7 @@ namespace TestProject1
         public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithRegx(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             string patternRegx = "file[0-9]{2}.txt$";
             Regex patternMatch = new Regex(patternRegx);
             var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.RegEx, patternRegx, allowFlates);
@@ -421,7 +438,7 @@ namespace TestProject1
         public void ArchiveDirectoryWithPatternStream_whenCalled_ReturnStreamWithWildCard(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             string patternWild = "?test.*";
             var archivedFile = ArchivingServicess.ArchiveDirectoryWithPatternStream(inputPath, SearchPattern.WildCard, patternWild, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
@@ -452,7 +469,7 @@ namespace TestProject1
         public async Task ArchiveDirectoryWithPatternStreamAsync_whenCalled_ReturnStreamWithWildCard(bool allowFlates)
         {
             string directoryName = "ArchiveDirectoryWithPatternStream";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            string inputPath = @"Testing\Input\" + directoryName;
             string patternWild = "?test.*";
             var archivedFile = await ArchivingServicess.ArchiveDirectoryWithPatternStreamAsync(inputPath, SearchPattern.WildCard, patternWild, allowFlates);
             MemoryStream archivedFileStream = new MemoryStream(archivedFile.ToArray());
@@ -485,11 +502,11 @@ namespace TestProject1
             string filePath = "AddfilesToExistArchive.zip";
             string fileTest1 = "test1.txt";
             string fileTest2 = "test2.txt";
-            string inputPath = @"..\..\..\..\Testing\Input\" + filePath;
+            string inputPath = @"Testing\Input\" + filePath;
             List<string> filePaths = new List<string>()
             {
-              @"..\..\..\..\Testing\Input\"+ fileTest1,
-              @"..\..\..\..\Testing\Input\"+ fileTest2
+              @"Testing\Input\"+ fileTest1,
+              @"Testing\Input\"+ fileTest2
             };
 
             MemoryStream streamedFile = ArchivingServicess.AddFilesToExistingArchiveStreamed(inputPath, filePaths);
@@ -505,6 +522,19 @@ namespace TestProject1
         #endregion
         #endregion Archiving
 
+        [Test]
+        public void Test_ArchiveFilesInRootFolderToDisk()
+        {
+            string inputPath = @"Testing\Input\";
+            string outputPath = @"Testing\Output\";
+            string zipFileName = "ArchiveFiles.zip";
+            string fileName1 = "test1.txt";
+            string fileName2 = "test2.txt";
+
+            List<string> filesToArchive = new List<string>() { inputPath + fileName1, inputPath + fileName2 };
+
+            Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(filesToArchive, outputPath + zipFileName));
+        }
 
         //#region Extract_Rar_Archive
 
@@ -528,10 +558,10 @@ namespace TestProject1
 
         #region metadata
         [Test]
-        //[TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        //[TestCase(@"Testing\MetadataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
         {
-            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string inputPath = @"Testing\Input\MetadataTest\";
             string fileName = "FileToTestMetaS.zip";
 
             foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
@@ -544,10 +574,10 @@ namespace TestProject1
 
         }
         [Test]
-        // [TestCase(@"..\..\..\..\Testing\MetadataTest\NewFolder.zip")]
+        // [TestCase(@"Testing\MetadataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Working_with_file_contains_multiple_subfiles()
         {
-            string inputPath = @"..\..\..\..\Testing\Input\MetadataTest\";
+            string inputPath = @"Testing\Input\MetadataTest\";
             string fileName = "FileToTestMetaM.zip";
             foreach (var file in ArchivingServicess.GetFilesMetadataFromArchive(inputPath + fileName))
             {
@@ -558,10 +588,10 @@ namespace TestProject1
             }
         }
         [Test]
-        //  [TestCase(@"..\..\..\..\MetaDataTest\NewFolder.zip")]
+        //  [TestCase(@"MetaDataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Not_Working_with_invalid_path()
         {
-            string inputPath = @"..\..\..\..\Testing\MetadataTest\";
+            string inputPath = @"Testing\MetadataTest\";
             string fileName = "FileToTestMetaM.zip";
             var ex = Assert.Throws<DirectoryNotFoundException>(() =>
             {

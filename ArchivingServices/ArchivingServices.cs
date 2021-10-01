@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using SimpleLogger;
 
 namespace ArchivingServices
 {
@@ -132,15 +133,19 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveFiles(Dictionary<string, string> inFilesDictionary, string archivePath)
         {
+            var fileExists = false;
+
             try
             {
                 File.WriteAllBytes(archivePath, ArchiveFiles(inFilesDictionary).ToArray());
-                return File.Exists(archivePath);
+                fileExists = File.Exists(archivePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveFiles.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple async function that wraps the functionality for
@@ -154,16 +159,20 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static async Task<bool> ArchiveFilesAsync(Dictionary<string, string> inFilesDictionary, string archivePath)
         {
+            var fileExists = false;
+
             try
             {
                 var result = await ArchiveFilesAsync(inFilesDictionary);
                 File.WriteAllBytes(archivePath, result.ToArray());
-                return File.Exists(archivePath);
+                fileExists = File.Exists(archivePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveFilesAsync.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that wraps the functionality for
@@ -186,14 +195,17 @@ namespace ArchivingServices
                             else
                                 archive.CreateEntry(kvp.Key + "\\");
                         }
+
                         return memoryStream;
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                Logger.Error("ArchiveFiles.\r" + ex.Message);
             }
+
+            return null;
         }
         /// <summary>
         /// a simple async function that wraps the functionality for
@@ -232,15 +244,19 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveFile(string filePathOnDisk, string filePathInArchive, string archivePath)
         {
+            var fileExists = false;
+
             try
             {
                 File.WriteAllBytes(archivePath, ArchiveFile(filePathOnDisk, filePathInArchive).ToArray());
-                return File.Exists(archivePath);
+                fileExists = File.Exists(archivePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveFile.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that wraps the functionality for zipping file
@@ -397,15 +413,19 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveFilesStream(Dictionary<string, Stream> inFilesDictionary, string archivePath)
         {
+            var fileExists = false;
+
             try
             {
                 File.WriteAllBytes(archivePath, ArchiveFilesStream(inFilesDictionary).ToArray());
-                return File.Exists(archivePath);
+                fileExists = File.Exists(archivePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveFilesStream.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that wraps the functionality for zipping file list into an stream archive
@@ -430,18 +450,22 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static async Task<bool> ArchiveFilesStreamAsync(Dictionary<string, Stream> inFilesDictionary, string archivePath)
         {
+            var fileExists = false;
+
             try
             {
                 using (var zip = ZipFile.Open(archivePath, ZipArchiveMode.Create))
                     foreach (var kvp in inFilesDictionary)
                         using (var entryStream = zip.CreateEntry(kvp.Key).Open())
                             await kvp.Value.CopyToAsync(entryStream);
-                return File.Exists(archivePath);
+                fileExists = File.Exists(archivePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveFilesStreamAsync.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that wraps the functionality for zipping files list into an stream archive
@@ -467,17 +491,21 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ExtractArchive(string zipPath, string extractPath)
         {
+            var fileExists = false;
+
             try
             {
                 MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
                 ZipArchive Archive = new ZipArchive(memoryStream);
                 Archive.ExtractToDirectory(extractPath);
-                return File.Exists($"{extractPath}/{Archive.Entries[0].Name}");
+                fileExists = File.Exists($"{extractPath}/{Archive.Entries[0].Name}");
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ExtractArchive.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that extract archive
@@ -500,6 +528,8 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ExtractParticularFile(string zipPath, string extractPath, string particularPath)
         {
+            var fileExists = false;
+
             try
             {
                 MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
@@ -512,12 +542,15 @@ namespace ArchivingServices
                         entry.ExtractToFile(Path.Combine(extractPath, particularPath));
                     }
                 }
-                return File.Exists($"{extractPath}/{Archive.Entries[0].FullName}");
+
+                fileExists = File.Exists($"{extractPath}/{Archive.Entries[0].FullName}");
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ExtractParticularFile.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that extract particular file from archive
@@ -553,6 +586,7 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ExtractArchiveFlatDirectory(string zipPath, string extractPath)
         {
+            var fileExists = false;
             try
             {
                 MemoryStream memoryStream = new MemoryStream(ExtractArchive(zipPath).ToArray());
@@ -565,12 +599,15 @@ namespace ArchivingServices
                         entry.ExtractToFile(Path.Combine(extractPath, entry.Name));
                     }
                 }
-                return File.Exists(extractPath);
+
+                fileExists = File.Exists(extractPath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ExtractArchiveFlatDirectory.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that extract archive to flat diractory
@@ -608,30 +645,41 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ArchiveRarFiles(string rarPackagePath, List<string> collectionFiles)
         {
+            var result = false;
+
             try
             {
                 var files = collectionFiles.Select(file => "\"" + file).ToList();
                 var fileList = string.Join("\" ", files);
+
                 fileList += "\"";
-                if (rarPackagePath == null) return false;
-                var arguments = $"A \"{rarPackagePath}\" {fileList} -ep1 -r";
-                var processStartInfo = new System.Diagnostics.ProcessStartInfo
+
+                if (rarPackagePath != null)
                 {
-                    ErrorDialog = false,
-                    UseShellExecute = true,
-                    Arguments = arguments,
-                    FileName = @"C:\Program Files\WinRAR\WinRAR.exe",
-                    CreateNoWindow = false,
-                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
-                };
-                var process = System.Diagnostics.Process.Start(processStartInfo);
-                process?.WaitForExit();
-                return true;
+                    var arguments = $"A \"{rarPackagePath}\" {fileList} -ep1 -r";
+
+                    var processStartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        ErrorDialog = false,
+                        UseShellExecute = true,
+                        Arguments = arguments,
+                        FileName = @"WinRAR.exe",
+                        CreateNoWindow = false,
+                        WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+                    };
+
+                    var process = System.Diagnostics.Process.Start(processStartInfo);
+                    process?.WaitForExit();
+
+                    result = true;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ArchiveRarFiles.\r" + ex.Message);
             }
+
+            return result;
         }
         /// <summary>
         /// a simple function that extract rar archive
@@ -641,6 +689,8 @@ namespace ArchivingServices
         /// <returns>the result as to where it was successful or not</returns>
         public static bool ExtractRarArchive(string rarPackagePath, string extractPath)
         {
+            var fileExists = false;
+
             try
             {
                 MemoryStream memoryStream = new MemoryStream(ExtractRarArchive(rarPackagePath).ToArray());
@@ -650,13 +700,16 @@ namespace ArchivingServices
                     {
                         entry.WriteToDirectory(extractPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
                     }
-                    return File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}");
+
+                    fileExists = File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Logger.Error("ExtractRarArchive.\r" + ex.Message);
             }
+
+            return fileExists;
         }
         /// <summary>
         /// a simple function that extract rar archive
