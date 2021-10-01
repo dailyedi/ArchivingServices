@@ -1010,8 +1010,41 @@ namespace TestProject1
                 Assert.That(archive.Entries.Any(f => f.Name == Path.GetFileName(item)));
             }
         }
-        #endregion 
         #endregion
+        #region DeflateCompression
+        [Test]
+        public void DecompressMemoryStreamWithDeflate_WhenCalled_returnCompressedStream()
+        {
+            string fileTest1 = "test1.txt";
+            string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
+            var filestream = File.Open(filename, FileMode.Open);
+            var fileMemStream = new MemoryStream();
+            filestream.CopyTo(fileMemStream);
+            var CompressedStream = ArchivingServicess.CompressMemoryStreamWithDeflate(fileMemStream);
+            var DecompressedStream = ArchivingServicess.DecompressMemoryStreamWithDeflate(CompressedStream);
+            var DecomStream = new MemoryStream(DecompressedStream.ToArray());
+            bool test=false;
+            if (fileMemStream.Length== DecomStream.Length)
+            {
+                var physicalBytesForFile = fileMemStream.ToArray();
+                var BytesForStream = DecomStream.ToArray();
+                for (int i = 0; i < physicalBytesForFile?.Length; i++)
+                {
+                    if (physicalBytesForFile[i] == BytesForStream[i])
+                        test = true;
+                    else
+                    {
+                        test = false;
+                        break;
+                    }
+                }
+            }
+            Assert.That(test, Is.True);
+        }
+        #endregion
+        #endregion
+
+
 
         #endregion
 
