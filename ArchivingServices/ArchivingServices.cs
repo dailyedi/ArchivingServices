@@ -895,8 +895,8 @@ namespace ArchivingServices
         /// <summary>
         /// a simple function that wraps the functionality for DeCompress Archived File
         /// </summary>
-        /// <param name="stream"> Stream That you Want To Compress</param>
-        /// <returns>return input MemoryStream As Compressed MemoryStream</returns>
+        /// <param name="FilePath">Path for Archived file that Contain the files which are Compressed</param>
+        /// <returns>return MemoryStream for Decompressed File </returns>
         public static MemoryStream DeCompressDirctoryFilesWithDeflate(string FilePath)
         {
             using (MemoryStream DestinationStream = new MemoryStream())
@@ -924,6 +924,41 @@ namespace ArchivingServices
                 return DestinationStream;
             }
         }
+        /// <summary>
+        /// a simple function that wraps the functionality for DeCompress Archived MemoryStream
+        /// </summary>
+        /// <param name="compressdStream">Compressed Archived file that Contain the files which are Compressed</param>
+        /// <returns>return MemoryStream for Decompressed File </returns>
+        public static MemoryStream DeCompressDirctoryFilesWithDeflate(MemoryStream compressdStream)
+        {
+            using (MemoryStream DestinationStream = new MemoryStream())
+            {
+                using (var tempCompressdStream=new MemoryStream(compressdStream.ToArray()))
+                using (var archiveCompressed = new ZipArchive(tempCompressdStream, ZipArchiveMode.Read, true))
+                {
+                    foreach (var item in archiveCompressed.Entries)
+                    {
+                        var stremedEntry = item.Open();
+                        var tempstremedEntry = new MemoryStream();
+                        stremedEntry.CopyTo(tempstremedEntry);
+                        var decmpressedStream = DecompressMemoryStreamWithDeflate(tempstremedEntry);
+                        var tempDecmpressedStream = new MemoryStream(decmpressedStream.ToArray());
+                        using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
+                        {
+                            using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileNameWithoutExtension(item.Name)).Open())
+                                tempDecmpressedStream.CopyTo(DeCompressedentryStream);
+                        }
+                    }
+                }
+
+                return DestinationStream;
+            }
+        }
+        /// <summary>
+        /// a simple function that wraps the functionality for Compress All Files in Directory
+        /// </summary>
+        /// <param name="DirectoryPath">Path for Directory to Compress All files in it</param>
+        /// <returns>return Archived MemoryStream for Directory</returns>
         public static MemoryStream CompressDirctoryFilesWithDeflate(string DirectoryPath)
         {
             // string EndDirectory = @"C:\Users\Mohamed_Reda\Desktop\end";
@@ -949,6 +984,11 @@ namespace ArchivingServices
                 return DestinationStream;
             }
         }
+        /// <summary>
+        /// a simple function that wraps the functionality for Saving Decompressed Archived On Disk
+        /// </summary>
+        /// <param name="FilePath">Path for Archived file that Contain the files which are Compressed</param>
+        /// <returns>return Bolean for Saved Opertation On disk</returns>
         public static bool ExtractDecompressedFileUsingDeflateToDisk(string FilePath)
         {
             try
@@ -963,6 +1003,11 @@ namespace ArchivingServices
                 return false;
             }
         }
+        /// <summary>
+        /// a simple function that wraps the functionality for Saving Compressed Files in Directory in archived file
+        /// </summary>
+        /// <param name="directoryPath">Path for Directory to Compress All files in it</param>
+        /// <returns>return Bolean for Saved Opertation On disk</returns>
         public static bool AddCompressedDirectoryUsingDeflateToDisk(string directoryPath)
         {
             try
