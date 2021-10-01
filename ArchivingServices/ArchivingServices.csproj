@@ -18,6 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="SevenZip" Version="19.0.0" />
 	  <PackageReference Include="SharpCompress" Version="0.29.0" />
 	</ItemGroup>
 

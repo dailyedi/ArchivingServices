@@ -993,6 +993,25 @@ namespace ArchivingServices
         }
 
 
+        #region SevenZip 
+
+        public static Stream CompressFileLZMA(string inFile)
+        {
+            SevenZip.Compression.LZMA.Encoder coder = new SevenZip.Compression.LZMA.Encoder();
+            Stream output = new MemoryStream();
+            using (FileStream input = new FileStream(inFile, FileMode.Open))
+            {
+
+                coder.Code(input, output, -1, -1, null);
+                output.Flush();
+
+            }
+
+            return output;
+
+        }
+
+        #endregion SevenZip
         // push form metadata
         //TODO: get files metadata from archive
         //TODO: get all files metadata and streams from archive
