@@ -271,6 +271,23 @@ namespace TestProject1
         }
         #endregion
 
+        #region test_Archive_Rar
+        [Test]
+        public void test_Archive_Rar_Files()
+        {
+            var index = 0;
+            var rarPath = @"Testing\Output\testRAR.rar";
+            var filesCollection = new List<string> 
+            { 
+                @"Testing\Input\test1.txt", 
+                @"Testing\Input\test2.txt" 
+            };
+            Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
+            RarArchive archive = RarArchive.Open(rarPath);
+            foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key)); index += 1; }
+        }
+        #endregion
+
         #endregion Streaming
 
         #region Archiving
