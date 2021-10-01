@@ -551,11 +551,7 @@ namespace TestProject1
             Assert.That(test, Is.True);
         }
         #endregion
-        #endregion
 
-
-
-        #endregion
         #endregion Archiving
 
         [Test]
