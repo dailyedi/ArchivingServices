@@ -1,17 +1,16 @@
 using ArchivingServices;
 using ArchivingServices.Structure;
 using NUnit.Framework;
-using SharpCompress.Archives.Rar;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 
 namespace TestProject1
 {
     public class Tests
     {
+
         #region commented
 
         //#region ArchiveFilesInRootFolder
@@ -832,58 +831,7 @@ namespace TestProject1
         }
         #endregion
 
-        #region test_Archive_Rar
-
-        [Test]
-        public void test_Archive_Rar_Files()
-        {
-            var index = 0;
-            var rarPath = "D:/testRAR.rar";
-            var filesCollection = new List<string> { "D:/New folder{}/test.txt" , "D:/New folder{}/New folder/test2.txt" };
-
-            Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
-            RarArchive archive = RarArchive.Open(rarPath);
-
-            foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key));index += 1; }
-        }
-
         #endregion
-
-        #region Extract_Rar_Archive
-
-        [Test]
-        public void Exract_Rar_Archivr()
-        {
-            string rarPath = "D:/testRAR.rar", extractPath = "D:\\extract";
-            var index = 0;
-
-            Assert.IsTrue(ArchivingServicess.ExtractRarArchive(rarPath, extractPath));
-            RarArchive archive = RarArchive.Open(rarPath);
-
-            foreach (var item in archive.Entries){ Assert.IsTrue(File.Exists($"{extractPath}/{archive.Entries.ElementAt(index).Key}"));index += 1; }
-
-        }
-        #endregion
-
-        #region Test_Extract_Rar_Archive_Memorystream
-        [Test]
-        public void Test_Extract_Rar_Archive_Memorystream()
-        {
-            string rarPath = "D:/testRAR.rar";
-            var index = 0;
-            var filesCollection = new List<string> { "D:/New folder{}/test.txt", "D:/New folder{}/New folder/test2.txt" };
-
-            MemoryStream memoryStream = new(ArchivingServicess.ExtractRarArchive(rarPath).ToArray());
-            RarArchive archive = RarArchive.Open(memoryStream);
-
-            Assert.IsNotNull(memoryStream);
-            Assert.AreEqual(2, archive.Entries.Count);
-            foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(archive.Entries.ElementAt(index).Key)); index += 1; }
-        }
-        #endregion
-
-        #endregion
-
 
     }
 }
