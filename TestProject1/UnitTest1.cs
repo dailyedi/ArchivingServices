@@ -5,11 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Drawing;
 using System;
 
 namespace TestProject1
@@ -547,23 +545,9 @@ namespace TestProject1
 
         #endregion Archiving
 
-        //[Test]
-        //public void Test_ArchiveFilesInRootFolderToDisk()
-        //{
-        //    string inputPath = @"Testing\Input\";
-        //    string outputPath = @"Testing\Output\";
-        //    string zipFileName = "ArchiveFiles.zip";
-        //    string fileName1 = "test1.txt";
-        //    string fileName2 = "test2.txt";
-
-        //    List<string> filesToArchive = new List<string>() { inputPath + fileName1, inputPath + fileName2 };
-
-        //    Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(filesToArchive, outputPath + zipFileName));
-        //}
-
         #region metadata
+
         [Test]
-        //[TestCase(@"Testing\MetadataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Working_with_file_contains_one_subfile()
         {
             string inputPath = @"Testing\Input\MetadataTest\";
@@ -578,8 +562,8 @@ namespace TestProject1
             }
 
         }
+
         [Test]
-        // [TestCase(@"Testing\MetadataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Working_with_file_contains_multiple_subfiles()
         {
             string inputPath = @"Testing\Input\MetadataTest\";
@@ -592,8 +576,8 @@ namespace TestProject1
                 Assert.NotNull(file.fileMetadata.CompressedLength);
             }
         }
+
         [Test]
-        //  [TestCase(@"MetaDataTest\NewFolder.zip")]
         public void GetFilesMetadataFromArchive_Not_Working_with_invalid_path()
         {
             string inputPath = @"Testing\MetadataTest\";
@@ -605,10 +589,11 @@ namespace TestProject1
 
                 }
             });
+
             Assert.That(ex.Message, Is.EqualTo(ex.Message));
         }
+
         [Test]
-        // [TestCase(null)]
         public void GetFilesMetadataFromArchive_Not_Working_with_null_path()
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
@@ -617,11 +602,9 @@ namespace TestProject1
                 {
                 }
             });
+            
             Assert.That(ex.Message, Is.EqualTo(ex.Message));
-
         }
-
-
         #endregion Metadata
     }
 
