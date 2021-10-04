@@ -526,9 +526,9 @@ namespace TestProject1
             }
         }
         #endregion
-        #region DeflateCompression
+        #region DeflateCompression And Gzip
         [Test]
-        public void DecompressMemoryStreamWithDeflate_WhenCalled_returnCompressedStream()
+        public void CompressAndDecompressMemoryStreamWithDeflate_WhenCalled_returnDeCompressedStream()
         {
             string fileTest1 = "test1.txt";
             string filename = @"Testing\Input\" + fileTest1;
@@ -540,6 +540,35 @@ namespace TestProject1
             var DecomStream = new MemoryStream(DecompressedStream.ToArray());
             bool test=false;
             if (fileMemStream.Length== DecomStream.Length)
+            {
+                var physicalBytesForFile = fileMemStream.ToArray();
+                var BytesForStream = DecomStream.ToArray();
+                for (int i = 0; i < physicalBytesForFile?.Length; i++)
+                {
+                    if (physicalBytesForFile[i] == BytesForStream[i])
+                        test = true;
+                    else
+                    {
+                        test = false;
+                        break;
+                    }
+                }
+            }
+            Assert.That(test, Is.True);
+        }
+        [Test]
+        public void CompressAndDecompressMemoryStreamWithGzip_WhenCalled_returnDeCompressedStream()
+        {
+            string fileTest1 = "test1.txt";
+            string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
+            var filestream = File.Open(filename, FileMode.Open);
+            var fileMemStream = new MemoryStream();
+            filestream.CopyTo(fileMemStream);
+            var CompressedStream = ArchivingServicess.CompressMemoryStreamWithGz(fileMemStream);
+            var DecompressedStream = ArchivingServicess.DecompressMemoryStreamWithGz(CompressedStream);
+            var DecomStream = new MemoryStream(DecompressedStream.ToArray());
+            bool test = false;
+            if (fileMemStream.Length == DecomStream.Length)
             {
                 var physicalBytesForFile = fileMemStream.ToArray();
                 var BytesForStream = DecomStream.ToArray();

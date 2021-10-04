@@ -1023,7 +1023,7 @@ namespace ArchivingServices
         //DeflateCompression
 
         /// <summary>
-        /// a simple function that wraps the functionality for Compress MemoryStream
+        /// a simple function that wraps the functionality for Compress MemoryStream using Deflate
         /// </summary>
         /// <param name="stream"> Stream That you Want To Compress</param>
         /// <returns>return input MemoryStream As Compressed MemoryStream</returns>
@@ -1040,7 +1040,7 @@ namespace ArchivingServices
             }
         }
         /// <summary>
-        /// a simple function that wraps the functionality for DeCompress MemoryStream
+        /// a simple function that wraps the functionality for DeCompress MemoryStream using Deflate
         /// </summary>
         /// <param name="StreamToDecompress"> Stream That you Want To DeCompress</param>
         /// <returns>return input MemoryStream As DeCompressed MemoryStream</returns>
@@ -1056,190 +1056,61 @@ namespace ArchivingServices
                 return decompressedStream;
             }
         }
-        /// <summary>
-        /// a simple function that wraps the functionality for DeCompress Archived File
-        /// </summary>
-        /// <param name="FilePath">Path for Archived file that Contain the files which are Compressed</param>
-        /// <returns>return MemoryStream for Decompressed File </returns>
-        public static MemoryStream DeCompressDirctoryFilesWithDeflate(string FilePath)
-        {
-            using (MemoryStream DestinationStream = new MemoryStream())
-            {
-                using (ZipArchive archive = ZipFile.OpenRead(FilePath))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        var entryStream = entry.Open();
-                        var tempStream = new MemoryStream();
-                        entryStream.CopyTo(tempStream);
-                        entryStream.Flush();
-                        entryStream.Close();
-                        using (var decompressedfile = DecompressMemoryStreamWithDeflate(tempStream))
-                        {
-                            MemoryStream TempDecompressed = new MemoryStream(decompressedfile.ToArray());
-                            using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                            {
-                                using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileNameWithoutExtension(entry.Name)).Open())
-                                    TempDecompressed.CopyTo(DeCompressedentryStream);
-                            }
-                        }
-                    }
-                }
-                return DestinationStream;
-            }
-        }
-        /// <summary>
-        /// a simple function that wraps the functionality for DeCompress Archived MemoryStream
-        /// </summary>
-        /// <param name="compressdStream">Compressed Archived file that Contain the files which are Compressed</param>
-        /// <returns>return MemoryStream for Decompressed File </returns>
-        public static MemoryStream DeCompressDirctoryFilesWithDeflate(MemoryStream compressdStream)
-        {
-            using (MemoryStream DestinationStream = new MemoryStream())
-            {
-                using (var tempCompressdStream=new MemoryStream(compressdStream.ToArray()))
-                using (var archiveCompressed = new ZipArchive(tempCompressdStream, ZipArchiveMode.Read, true))
-                {
-                    foreach (var item in archiveCompressed.Entries)
-                    {
-                        var stremedEntry = item.Open();
-                        var tempstremedEntry = new MemoryStream();
-                        stremedEntry.CopyTo(tempstremedEntry);
-                        var decmpressedStream = DecompressMemoryStreamWithDeflate(tempstremedEntry);
-                        var tempDecmpressedStream = new MemoryStream(decmpressedStream.ToArray());
-                        using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                        {
-                            using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileNameWithoutExtension(item.Name)).Open())
-                                tempDecmpressedStream.CopyTo(DeCompressedentryStream);
-                        }
-                    }
-                }
 
-                return DestinationStream;
-            }
-        }
         /// <summary>
-        /// a simple function that wraps the functionality for Compress All Files in Directory
+        /// a simple function that wraps the functionality for Taking file path and Compress it by deflate and save it
         /// </summary>
-        /// <param name="DirectoryPath">Path for Directory to Compress All files in it</param>
-        /// <returns>return Archived MemoryStream for Directory</returns>
-        public static MemoryStream CompressDirctoryFilesWithDeflate(string DirectoryPath)
-        {
-            // string EndDirectory = @"C:\Users\Mohamed_Reda\Desktop\end";
-            using (MemoryStream DestinationStream = new MemoryStream())
-            {
-                foreach (string filename in Directory.EnumerateFiles(DirectoryPath, "*.*", SearchOption.AllDirectories))
-                {
-                    var filestream = File.Open(filename, FileMode.Open);
-                    var fileMemStream = new MemoryStream();
-                    filestream.CopyTo(fileMemStream);
-                    filestream.Flush();
-                    filestream.Close();
-                    using (MemoryStream SourceStream = CompressMemoryStreamWithDeflate(fileMemStream))
-                    {
-                        MemoryStream newmem = new MemoryStream(SourceStream.ToArray());
-                        using (var archive = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                        {
-                            using (var entryStream = archive.CreateEntry(Path.GetFileName(filename) + ".cmp").Open())
-                                newmem.CopyTo(entryStream);
-                        }
-                    }
-                }
-                return DestinationStream;
-            }
-        }
-        /// <summary>
-        /// a simple function that wraps the functionality for Saving Decompressed Archived On Disk
-        /// </summary>
-        /// <param name="FilePath">Path for Archived file that Contain the files which are Compressed</param>
-        /// <returns>return Bolean for Saved Opertation On disk</returns>
-        public static bool ExtractDecompressedFileUsingDeflateToDisk(string FilePath)
+        /// <param name="filePathonDisk"> file path which will be compressed</param>
+        /// <param name="archivePath"> file path which the compressd file will save in it</param>
+        /// <returns>return boolean for checking compressed file is exsit or not</returns>
+        public static bool SaveCompressedFilewithDeflate(string filePathonDisk , string archivePath)
         {
             try
             {
-                MemoryStream deCompressedMemoryStream = DeCompressDirctoryFilesWithDeflate(FilePath);
-                ZipArchive Archive = new ZipArchive(deCompressedMemoryStream);
-                Archive.ExtractToDirectory(Path.GetFileNameWithoutExtension(FilePath));
-                return File.Exists(Path.GetFileNameWithoutExtension(FilePath));
+                FileStream fileOnDisk = File.Open(filePathonDisk,FileMode.Open);
+                string fileName = Path.GetFileName(filePathonDisk);
+                var fileMemorystream = new MemoryStream();
+                fileOnDisk.CopyTo(fileMemorystream);
+                File.WriteAllBytes(archivePath +fileName, CompressMemoryStreamWithDeflate(fileMemorystream).ToArray());
+                return File.Exists(archivePath + fileName);
             }
-            catch
+            catch (Exception)
             {
+
                 return false;
             }
         }
         /// <summary>
-        /// a simple function that wraps the functionality for Saving Compressed Files in Directory in archived file
+        /// a simple function that wraps the functionality for Taking file path and Decompress it by deflate and save it
         /// </summary>
-        /// <param name="directoryPath">Path for Directory to Compress All files in it</param>
-        /// <returns>return Bolean for Saved Opertation On disk</returns>
-        public static bool AddCompressedDirectoryUsingDeflateToDisk(string directoryPath)
+        /// <param name="filePathonDisk"> file path which will be Decompressed</param>
+        /// <param name="deArchivePath"> file path which the Decompressd file will save in it</param>
+        /// <returns>return boolean for checking  Decompressed file is exsit or not</returns>
+        public static bool SaveDeCompressedFilewithDeflate(string filePathonDisk, string deArchivePath)
         {
             try
             {
-                MemoryStream compressedStream = CompressDirctoryFilesWithDeflate(directoryPath);
-                var tempcompressedStream = new MemoryStream(compressedStream.ToArray());
-                File.WriteAllBytes(directoryPath + ".zip", tempcompressedStream.ToArray());
-                return File.Exists(directoryPath + ".zip");
+                FileStream fileOnDisk = File.Open(filePathonDisk, FileMode.Open);
+                string fileName = Path.GetFileName(filePathonDisk);
+                var fileMemorystream = new MemoryStream();
+                fileOnDisk.CopyTo(fileMemorystream);
+                File.WriteAllBytes(deArchivePath + fileName, DecompressMemoryStreamWithDeflate(fileMemorystream).ToArray());
+                return File.Exists(deArchivePath + fileName);
             }
-            catch
+            catch (Exception)
             {
+
                 return false;
             }
         }
+
 
         //Gz
-        public static MemoryStream CompressDirctoryFilesWithGz(string DirectoryPath)
-        {
-
-            using (MemoryStream DestinationStream = new MemoryStream())
-            {
-                foreach (string filename in Directory.EnumerateFiles(DirectoryPath, "*.*", SearchOption.AllDirectories))
-                {
-                    var filestream = File.Open(filename, FileMode.Open);
-                    var fileMemStream = new MemoryStream();
-                    filestream.CopyTo(fileMemStream);
-                    filestream.Flush();
-                    filestream.Close();
-                    using (MemoryStream SourceStream = CompressMemoryStreamWithGz(fileMemStream))
-                    {
-                        MemoryStream newmem = new MemoryStream(SourceStream.ToArray());
-                        using (var archive = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                        {
-                            using (var entryStream = archive.CreateEntry(Path.GetFileName(filename) + ".gz").Open())
-                                newmem.CopyTo(entryStream);
-                        }
-                    }
-                }
-                return DestinationStream;
-            }
-        }
-        public static MemoryStream DeCompressDirctoryFilesWithGz(string FilePath)
-        {
-            using (MemoryStream DestinationStream = new MemoryStream())
-            {
-                using (ZipArchive archive = ZipFile.OpenRead(FilePath))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        var entryStream = entry.Open();
-                        var tempStream = new MemoryStream();
-                        entryStream.CopyTo(tempStream);
-                        entryStream.Flush();
-                        entryStream.Close();
-                        using (var decompressedfile = DecompressMemoryStreamWithGz(tempStream))
-                        {
-                            MemoryStream TempDecompressed = new MemoryStream(decompressedfile.ToArray());
-                            using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                            {
-                                using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileNameWithoutExtension(entry.Name)).Open())
-                                    TempDecompressed.CopyTo(DeCompressedentryStream);
-                            }
-                        }
-                    }
-                }
-                return DestinationStream;
-            }
-        }
+        /// <summary>
+        /// a simple function that wraps the functionality for Compress MemoryStream using Gzip
+        /// </summary>
+        /// <param name="stream"> Stream That you Want To Compress</param>
+        /// <returns>return input MemoryStream As Compressed MemoryStream</returns>
         public static MemoryStream CompressMemoryStreamWithGz(MemoryStream stream)
         {
             using (MemoryStream compressedFileStream = new MemoryStream())
@@ -1252,6 +1123,11 @@ namespace ArchivingServices
                 return compressedFileStream;
             }
         }
+        /// <summary>
+        /// a simple function that wraps the functionality for DeCompress MemoryStream using Gzip
+        /// </summary>
+        /// <param name="StreamToDecompress"> Stream That you Want To DeCompress</param>
+        /// <returns>return input MemoryStream As DeCompressed MemoryStream</returns>
         public static MemoryStream DecompressMemoryStreamWithGz(MemoryStream StreamToDecompress)
         {
 
@@ -1267,34 +1143,54 @@ namespace ArchivingServices
             }
 
         }
-        public static bool ExtractDecompressedFileUsingGzToDisk(string FilePath)
+
+        /// <summary>
+        /// a simple function that wraps the functionality for Taking file path and Compress it by Gzip and save it
+        /// </summary>
+        /// <param name="filePathonDisk"> file path which will be compressed</param>
+        /// <param name="archivePath"> file path which the compressd file will save in it</param>
+        /// <returns>return boolean for checking compressed file is exsit or not</returns>
+        public static bool SaveCompressedFileWithGz(string filePathonDisk, string archivePath)
         {
             try
             {
-                MemoryStream deCompressedMemoryStream = DeCompressDirctoryFilesWithGz(FilePath);
-                ZipArchive Archive = new ZipArchive(deCompressedMemoryStream);
-                Archive.ExtractToDirectory(Path.GetFileNameWithoutExtension(FilePath));
-                return File.Exists(Path.GetFileNameWithoutExtension(FilePath));
+                FileStream fileOnDisk = File.Open(filePathonDisk, FileMode.Open);
+                string fileName = Path.GetFileName(filePathonDisk);
+                var fileMemorystream = new MemoryStream();
+                fileOnDisk.CopyTo(fileMemorystream);
+                File.WriteAllBytes(archivePath + fileName, CompressMemoryStreamWithGz(fileMemorystream).ToArray());
+                return File.Exists(archivePath + fileName);
             }
-            catch
+            catch (Exception)
             {
+
                 return false;
             }
         }
-        public static bool AddCompressedDirectoryUsingGzToDisk(string directoryPath)
+        /// <summary>
+        /// a simple function that wraps the functionality for Taking file path and Decompress it by Gzip and save it
+        /// </summary>
+        /// <param name="filePathonDisk"> file path which will be Decompressed</param>
+        /// <param name="deArchivePath"> file path which the Decompressd file will save in it</param>
+        /// <returns>return boolean for checking  Decompressed file is exsit or not</returns>
+        public static bool SaveDeCompressedFileWithGz(string filePathonDisk, string deArchivePath)
         {
             try
             {
-                MemoryStream compressedStream = CompressDirctoryFilesWithGz(directoryPath);
-                var tempcompressedStream = new MemoryStream(compressedStream.ToArray());
-                File.WriteAllBytes(directoryPath + ".zip", tempcompressedStream.ToArray());
-                return File.Exists(directoryPath + ".zip");
+                FileStream fileOnDisk = File.Open(filePathonDisk, FileMode.Open);
+                string fileName = Path.GetFileName(filePathonDisk);
+                var fileMemorystream = new MemoryStream();
+                fileOnDisk.CopyTo(fileMemorystream);
+                File.WriteAllBytes(deArchivePath + fileName, DecompressMemoryStreamWithGz(fileMemorystream).ToArray());
+                return File.Exists(deArchivePath + fileName);
             }
-            catch
+            catch (Exception)
             {
+
                 return false;
             }
         }
+
         #endregion
 
         /// <summary>
