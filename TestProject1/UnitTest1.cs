@@ -550,6 +550,45 @@ namespace TestProject1
             }
             Assert.That(test, Is.True);
         }
+        [Test]
+        public void CompressDirctoryFilesWithDeflate_whenCalled_ReturnArchivedfileAsMemoryStream()
+        {
+            string directoryName = "CompressDirctoryFilesWithDeflate";
+            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
+            var DestinationStream = new MemoryStream();
+            foreach (var item in Directory.GetFiles(inputPath, "*.*",SearchOption.AllDirectories))
+            {
+                var filestream = File.Open(item, FileMode.Open);
+                using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
+                {
+                    using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileName(item)).Open())
+                        filestream.CopyTo(DeCompressedentryStream);
+                }
+                filestream.Flush();
+                filestream.Close();
+            }
+            var CompressedStream = ArchivingServicess.CompressDirctoryFilesWithDeflate(inputPath);
+            var DecompressedStream = ArchivingServicess.DeCompressDirctoryFilesWithDeflate(CompressedStream);
+            var DecomStream = new MemoryStream(DecompressedStream.ToArray());
+            bool test = false;
+            if (DestinationStream.Length == DecomStream.Length)
+            {
+                var physicalBytesForFile = DestinationStream.ToArray();
+                var BytesForStream = DecomStream.ToArray();
+                for (int i = 0; i < physicalBytesForFile?.Length; i++)
+                {
+                    if (physicalBytesForFile[i] == BytesForStream[i])
+                        test = true;
+                    else
+                    {
+                        test = false;
+                        break;
+                    }
+                }
+            }
+            Assert.That(test, Is.True);
+        }
+
         #endregion
 
         #endregion Archiving
