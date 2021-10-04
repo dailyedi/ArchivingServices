@@ -271,22 +271,22 @@ namespace TestProject1
         }
         #endregion
 
-        #region test_Archive_Rar
-        [Test]
-        public void test_Archive_Rar_Files()
-        {
-            var index = 0;
-            var rarPath = @"Testing\Output\testRAR.rar";
-            var filesCollection = new List<string> 
-            { 
-                @"Testing\Input\test1.txt", 
-                @"Testing\Input\test2.txt" 
-            };
-            Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
-            RarArchive archive = RarArchive.Open(rarPath);
-            foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key)); index += 1; }
-        }
-        #endregion
+        //#region test_Archive_Rar
+        //[Test]
+        //public void test_Archive_Rar_Files()
+        //{
+        //    var index = 0;
+        //    var rarPath = @"Testing\Output\testRAR.rar";
+        //    var filesCollection = new List<string> 
+        //    { 
+        //        @"Testing\Input\test1.txt", 
+        //        @"Testing\Input\test2.txt" 
+        //    };
+        //    Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
+        //    RarArchive archive = RarArchive.Open(rarPath);
+        //    foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key)); index += 1; }
+        //}
+        //#endregion
 
         #endregion Streaming
 
@@ -606,26 +606,6 @@ namespace TestProject1
 
             Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(filesToArchive, outputPath + zipFileName));
         }
-
-        //#region Extract_Rar_Archive
-
-        //[Test]
-        //public void AddfilesToExistArchive_whenCalled_SavfilesinArchivedfile()
-        //{
-        //    var d = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-        //    ArchivingServicess.AddfilesToExistArchive(pathZipFile, filePaths);
-        //    ZipFile.ExtractToDirectory(pathZipFile, ExtractPathFiles, overwriteFiles: true);
-        //    var allFiles = Directory.GetFiles(ExtractPathFiles);
-        //    bool result = false;
-        //    foreach (var item in allFiles)
-        //    {
-        //        result = item.EndsWith("hello.txt");
-        //        if (result)
-        //            break;
-        //    }
-        //    Assert.That(result, Is.True);
-        //}
-        //#endregion
 
         #region metadata
         [Test]

@@ -643,44 +643,44 @@ namespace ArchivingServices
         /// <param name="rarPackagePath">the files path list to rar archive</param>
         /// <param name="collectionFiles">the rar file path to create</param>
         /// <returns>the result as to where it was successful or not</returns>
-        public static bool ArchiveRarFiles(string rarPackagePath, List<string> collectionFiles)
-        {
-            var result = false;
+        //public static bool ArchiveRarFiles(string rarPackagePath, List<string> collectionFiles)
+        //{
+        //    var result = false;
 
-            try
-            {
-                var files = collectionFiles.Select(file => "\"" + file).ToList();
-                var fileList = string.Join("\" ", files);
+        //    try
+        //    {
+        //        var files = collectionFiles.Select(file => "\"" + file).ToList();
+        //        var fileList = string.Join("\" ", files);
 
-                fileList += "\"";
+        //        fileList += "\"";
 
-                if (rarPackagePath != null)
-                {
-                    var arguments = $"A \"{rarPackagePath}\" {fileList} -ep1 -r";
+        //        if (rarPackagePath != null)
+        //        {
+        //            var arguments = $"A \"{rarPackagePath}\" {fileList} -ep1 -r";
 
-                    var processStartInfo = new System.Diagnostics.ProcessStartInfo
-                    {
-                        ErrorDialog = false,
-                        UseShellExecute = true,
-                        Arguments = arguments,
-                        FileName = @"WinRAR.exe",
-                        CreateNoWindow = false,
-                        WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
-                    };
+        //            var processStartInfo = new System.Diagnostics.ProcessStartInfo
+        //            {
+        //                ErrorDialog = false,
+        //                UseShellExecute = true,
+        //                Arguments = arguments,
+        //                FileName = @"WinRAR.exe",
+        //                CreateNoWindow = false,
+        //                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+        //            };
 
-                    var process = System.Diagnostics.Process.Start(processStartInfo);
-                    process?.WaitForExit();
+        //            var process = System.Diagnostics.Process.Start(processStartInfo);
+        //            process?.WaitForExit();
 
-                    result = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("ArchiveRarFiles.\r" + ex.Message);
-            }
+        //            result = true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error("ArchiveRarFiles.\r" + ex.Message);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
         /// <summary>
         /// a simple function that extract rar archive
         /// </summary>
