@@ -1,8 +1,6 @@
 using ArchivingServices;
 using ArchivingServices.Structure;
 using NUnit.Framework;
-using SharpCompress.Archives.Rar;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -12,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Drawing;
-
+using System;
 
 namespace TestProject1
 {
@@ -235,30 +233,6 @@ namespace TestProject1
 
         #endregion
 
-        #region Test_Extract_Rar_Archive_Memorystream
-        [Test]
-        public void Test_Extract_Rar_Archive_Memorystream()
-        {
-            string rarPath = @"Testing\Input\testRAR.rar";
-            var index = 0;
-            var filesCollection = new List<string> 
-            { 
-                "test1.txt", "test2.txt" 
-            };
-
-            MemoryStream memoryStream = new(ArchivingServicess.ExtractRarArchive(rarPath).ToArray());
-            RarArchive archive = RarArchive.Open(memoryStream);
-
-            Assert.IsNotNull(memoryStream);
-            Assert.AreEqual(2, archive.Entries.Count);
-            foreach (var item in archive.Entries)
-            {
-                Assert.AreEqual(filesCollection[index], archive.Entries.ElementAt(index).Key);
-                index += 1;
-            }
-        }
-        #endregion
-
         #region Extract_Archive_Flat_Directory
         [Test]
         public void Test_Extract_Archive_Flat_Directory()
@@ -276,23 +250,6 @@ namespace TestProject1
 
         }
         #endregion
-
-        //#region test_Archive_Rar
-        //[Test]
-        //public void test_Archive_Rar_Files()
-        //{
-        //    var index = 0;
-        //    var rarPath = @"Testing\Output\testRAR.rar";
-        //    var filesCollection = new List<string> 
-        //    { 
-        //        @"Testing\Input\test1.txt", 
-        //        @"Testing\Input\test2.txt" 
-        //    };
-        //    Assert.IsTrue(ArchivingServicess.ArchiveRarFiles(rarPath, filesCollection));
-        //    RarArchive archive = RarArchive.Open(rarPath);
-        //    foreach (var item in archive.Entries) { Assert.IsTrue(filesCollection[index].Contains(item.Key)); index += 1; }
-        //}
-        //#endregion
 
         #endregion Streaming
 
