@@ -143,10 +143,11 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFiles_ListZipStreamConfig_MemoryStream()
         {
+            string testFilePath = @"Testing\Input\";
             string fileName = "test.txt";
             byte[] byteArray = Encoding.ASCII.GetBytes(fileName);
             MemoryStream stream = new(byteArray);
-            List<ZipStreamConfig> zipFileConfigs = new() { new ZipStreamConfig(stream, fileName) };
+            List<ZipStreamConfig> zipFileConfigs = new() { new ZipStreamConfig(stream, testFilePath + fileName) };
 
             stream = new(ArchivingServicess.ArchiveFiles(zipFileConfigs).ToArray());
             ZipArchive Archive = new(stream);
@@ -161,11 +162,12 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFile_ZipStreamConfig_MemoryStream()
         {
+            string testFilePath = @"Testing\Input\";
             string fileName = "test.txt";
 
             byte[] byteArray = Encoding.ASCII.GetBytes(fileName);
             MemoryStream stream = new(byteArray);
-            ZipStreamConfig zipFileConfigs = new(stream, fileName);
+            ZipStreamConfig zipFileConfigs = new(stream, testFilePath + fileName);
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFile(zipFileConfigs).ToArray());
             ZipArchive Archive = new(memoryStream);
@@ -173,7 +175,6 @@ namespace TestProject1
             Assert.IsNotNull(memoryStream);
             Assert.AreEqual(1, Archive.Entries.Count);
             Assert.AreEqual(fileName, Archive.Entries[0].FullName);
-
         }
 
         #endregion
@@ -182,11 +183,12 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFile_3String_MemoryStream()
         {
+            string testFilePath = @"Testing\Input\";
             string fileName = "test.txt";
-            byte[] byteArray = Encoding.ASCII.GetBytes(fileName);
+            byte[] byteArray = Encoding.ASCII.GetBytes(testFilePath + fileName);
             MemoryStream stream = new(byteArray);
 
-            MemoryStream memoryStream = new(ArchivingServicess.ArchiveFile(fileName, stream).ToArray());
+            MemoryStream memoryStream = new(ArchivingServicess.ArchiveFile(testFilePath + fileName, stream).ToArray());
             ZipArchive Archive = new(memoryStream);
 
             Assert.IsNotNull(memoryStream);
@@ -219,7 +221,8 @@ namespace TestProject1
         [Test]
         public void Test_Extract_Particular_File()
         {
-            string fileName = "test.txt", archivePath = @"Testing\Input\ArchiveFilesInRootFolder.zip";
+            string archivePath = @"Testing\Input\ArchiveFilesInRootFolder.zip";
+            string fileName = "test1.txt";
 
             MemoryStream memoryStream = new MemoryStream(ArchivingServicess.ExtractParticularFile(archivePath, fileName).ToArray());
             ZipArchive Archive = new ZipArchive(memoryStream);
@@ -238,7 +241,10 @@ namespace TestProject1
         {
             string rarPath = @"Testing\Input\testRAR.rar";
             var index = 0;
-            var filesCollection = new List<string> { "test1.txt", "test2.txt" };
+            var filesCollection = new List<string> 
+            { 
+                "test1.txt", "test2.txt" 
+            };
 
             MemoryStream memoryStream = new(ArchivingServicess.ExtractRarArchive(rarPath).ToArray());
             RarArchive archive = RarArchive.Open(memoryStream);
@@ -525,7 +531,7 @@ namespace TestProject1
         public void DecompressMemoryStreamWithDeflate_WhenCalled_returnCompressedStream()
         {
             string fileTest1 = "test1.txt";
-            string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
+            string filename = @"Testing\Input\" + fileTest1;
             var filestream = File.Open(filename, FileMode.Open);
             var fileMemStream = new MemoryStream();
             filestream.CopyTo(fileMemStream);
@@ -536,44 +542,6 @@ namespace TestProject1
             if (fileMemStream.Length== DecomStream.Length)
             {
                 var physicalBytesForFile = fileMemStream.ToArray();
-                var BytesForStream = DecomStream.ToArray();
-                for (int i = 0; i < physicalBytesForFile?.Length; i++)
-                {
-                    if (physicalBytesForFile[i] == BytesForStream[i])
-                        test = true;
-                    else
-                    {
-                        test = false;
-                        break;
-                    }
-                }
-            }
-            Assert.That(test, Is.True);
-        }
-        [Test]
-        public void CompressDirctoryFilesWithDeflate_whenCalled_ReturnArchivedfileAsMemoryStream()
-        {
-            string directoryName = "CompressDirctoryFilesWithDeflate";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            var DestinationStream = new MemoryStream();
-            foreach (var item in Directory.GetFiles(inputPath, "*.*",SearchOption.AllDirectories))
-            {
-                var filestream = File.Open(item, FileMode.Open);
-                using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                {
-                    using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileName(item)).Open())
-                        filestream.CopyTo(DeCompressedentryStream);
-                }
-                filestream.Flush();
-                filestream.Close();
-            }
-            var CompressedStream = ArchivingServicess.CompressDirctoryFilesWithDeflate(inputPath);
-            var DecompressedStream = ArchivingServicess.DeCompressDirctoryFilesWithDeflate(CompressedStream);
-            var DecomStream = new MemoryStream(DecompressedStream.ToArray());
-            bool test = false;
-            if (DestinationStream.Length == DecomStream.Length)
-            {
-                var physicalBytesForFile = DestinationStream.ToArray();
                 var BytesForStream = DecomStream.ToArray();
                 for (int i = 0; i < physicalBytesForFile?.Length; i++)
                 {
