@@ -1011,9 +1011,9 @@ namespace TestProject1
             }
         }
         #endregion
-        #region DeflateCompression
+        #region DeflateCompression And Gzip
         [Test]
-        public void DecompressMemoryStreamWithDeflate_WhenCalled_returnCompressedStream()
+        public void CompressAndDecompressMemoryStreamWithDeflate_WhenCalled_returnDeCompressedStream()
         {
             string fileTest1 = "test1.txt";
             string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
@@ -1042,29 +1042,20 @@ namespace TestProject1
             Assert.That(test, Is.True);
         }
         [Test]
-        public void CompressDirctoryFilesWithDeflate_whenCalled_ReturnArchivedfileAsMemoryStream()
+        public void CompressAndDecompressMemoryStreamWithGzip_WhenCalled_returnDeCompressedStream()
         {
-            string directoryName = "CompressDirctoryFilesWithDeflate";
-            string inputPath = @"..\..\..\..\Testing\Input\" + directoryName;
-            var DestinationStream = new MemoryStream();
-            foreach (var item in Directory.GetFiles(inputPath, "*.*",SearchOption.AllDirectories))
-            {
-                var filestream = File.Open(item, FileMode.Open);
-                using (var archiveDecopresed = new ZipArchive(DestinationStream, ZipArchiveMode.Update, true))
-                {
-                    using (var DeCompressedentryStream = archiveDecopresed.CreateEntry(Path.GetFileName(item)).Open())
-                        filestream.CopyTo(DeCompressedentryStream);
-                }
-                filestream.Flush();
-                filestream.Close();
-            }
-            var CompressedStream = ArchivingServicess.CompressDirctoryFilesWithDeflate(inputPath);
-            var DecompressedStream = ArchivingServicess.DeCompressDirctoryFilesWithDeflate(CompressedStream);
+            string fileTest1 = "test1.txt";
+            string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
+            var filestream = File.Open(filename, FileMode.Open);
+            var fileMemStream = new MemoryStream();
+            filestream.CopyTo(fileMemStream);
+            var CompressedStream = ArchivingServicess.CompressMemoryStreamWithGz(fileMemStream);
+            var DecompressedStream = ArchivingServicess.DecompressMemoryStreamWithGz(CompressedStream);
             var DecomStream = new MemoryStream(DecompressedStream.ToArray());
             bool test = false;
-            if (DestinationStream.Length == DecomStream.Length)
+            if (fileMemStream.Length == DecomStream.Length)
             {
-                var physicalBytesForFile = DestinationStream.ToArray();
+                var physicalBytesForFile = fileMemStream.ToArray();
                 var BytesForStream = DecomStream.ToArray();
                 for (int i = 0; i < physicalBytesForFile?.Length; i++)
                 {
