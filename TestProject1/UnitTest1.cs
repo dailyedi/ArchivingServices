@@ -24,11 +24,11 @@ namespace TestProject1
         [Test]
         public void Test_ArchiveFilesInRootFolder_Memorystream()
         {
-            string fileName1 = "test1.txt", fileName2 = "test1 - Copy (1).txt";
+            string fileName5 = "test5.txt", fileName2 = "test5 - Copy (1).txt";
             List<string> pathsSameName = new()
             {
-                @"Testing\Input\test1.txt",
-                @"Testing\test1.txt"
+                @"Testing\Input\" + fileName5,
+                @"Testing\" + fileName5
             };
 
             MemoryStream memoryStream = new(ArchivingServicess.ArchiveFilesInRootFolder(pathsSameName).ToArray());
@@ -36,7 +36,7 @@ namespace TestProject1
 
             Assert.IsNotNull(memoryStream);
             Assert.AreEqual(2, Archive.Entries.Count);
-            Assert.AreEqual(fileName1, Archive.Entries[0].Name);
+            Assert.AreEqual(fileName5, Archive.Entries[0].Name);
             Assert.AreEqual(fileName2, Archive.Entries[1].Name);
         }
         #endregion
@@ -559,8 +559,8 @@ namespace TestProject1
         [Test]
         public void CompressAndDecompressMemoryStreamWithGzip_WhenCalled_returnDeCompressedStream()
         {
-            string fileTest1 = "test1.txt";
-            string filename = @"..\..\..\..\Testing\Input\" + fileTest1;
+            string fileTest1 = "test3.txt";
+            string filename = @"Testing\Input\" + fileTest1;
             var filestream = File.Open(filename, FileMode.Open);
             var fileMemStream = new MemoryStream();
             filestream.CopyTo(fileMemStream);
@@ -590,19 +590,19 @@ namespace TestProject1
 
         #endregion Archiving
 
-        [Test]
-        public void Test_ArchiveFilesInRootFolderToDisk()
-        {
-            string inputPath = @"Testing\Input\";
-            string outputPath = @"Testing\Output\";
-            string zipFileName = "ArchiveFiles.zip";
-            string fileName1 = "test1.txt";
-            string fileName2 = "test2.txt";
+        //[Test]
+        //public void Test_ArchiveFilesInRootFolderToDisk()
+        //{
+        //    string inputPath = @"Testing\Input\";
+        //    string outputPath = @"Testing\Output\";
+        //    string zipFileName = "ArchiveFiles.zip";
+        //    string fileName1 = "test1.txt";
+        //    string fileName2 = "test2.txt";
 
-            List<string> filesToArchive = new List<string>() { inputPath + fileName1, inputPath + fileName2 };
+        //    List<string> filesToArchive = new List<string>() { inputPath + fileName1, inputPath + fileName2 };
 
-            Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(filesToArchive, outputPath + zipFileName));
-        }
+        //    Assert.IsTrue(ArchivingServicess.ArchiveFilesInRootFolder(filesToArchive, outputPath + zipFileName));
+        //}
 
         #region metadata
         [Test]

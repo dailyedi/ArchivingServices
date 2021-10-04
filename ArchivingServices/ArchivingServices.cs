@@ -7,9 +7,6 @@ using System.Security.Cryptography;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using SharpCompress.Archives.Rar;
-using SharpCompress.Archives;
-using SharpCompress.Common;
 using SimpleLogger;
 
 namespace ArchivingServices
@@ -681,36 +678,7 @@ namespace ArchivingServices
 
         //    return result;
         //}
-        /// <summary>
-        /// a simple function that extract rar archive
-        /// </summary>
-        /// <param name="rarPackagePath">the rar path on disk </param>
-        /// <param name="extractPath">the extract rar file path</param>
-        /// <returns>the result as to where it was successful or not</returns>
-        public static bool ExtractRarArchive(string rarPackagePath, string extractPath)
-        {
-            var fileExists = false;
 
-            try
-            {
-                MemoryStream memoryStream = new MemoryStream(ExtractRarArchive(rarPackagePath).ToArray());
-                using (var archive = RarArchive.Open(memoryStream))
-                {
-                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
-                    {
-                        entry.WriteToDirectory(extractPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
-                    }
-
-                    fileExists = File.Exists($"{extractPath}/{archive.Entries.ElementAt(0).Key}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("ExtractRarArchive.\r" + ex.Message);
-            }
-
-            return fileExists;
-        }
         /// <summary>
         /// a simple function that extract rar archive
         /// </summary>
